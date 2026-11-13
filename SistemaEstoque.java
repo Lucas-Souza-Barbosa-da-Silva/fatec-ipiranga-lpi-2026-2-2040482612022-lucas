@@ -9,7 +9,7 @@ class Veiculo {
     double capacidadeCarga;
     String tipoMedida;
     boolean statusManutencao = false;
-
+    
     public void adicionarCarro(String placaVeiculo, String modeloVeiculo, int anoFabricacao, double capacidadeCarga, String tipoMedida) {
         this.placaVeiculo = placaVeiculo;
         this.modeloVeiculo = modeloVeiculo;
@@ -17,6 +17,7 @@ class Veiculo {
         this.capacidadeCarga = capacidadeCarga;
         this.statusManutencao = false; 
         this.tipoMedida = tipoMedida;
+
     }
 
     public void exibirDados() {
@@ -34,7 +35,6 @@ public class SistemaEstoque {
         int totalVeiculos = 0;
         int opcao = 0;
 
-        // Laço para manter o menu ativo até a opção 4 (Exit)
         while (opcao != 4) {
             System.out.println("\n##### Sistema de Estoque #####");
             System.out.println("( 1 ) Cadastrar novos veiculos ");
@@ -53,6 +53,7 @@ public class SistemaEstoque {
                     }
 
                     Veiculo veiculo = new Veiculo();
+                    
                     System.out.println("\nQual o veiculo quer cadastrar");
                     System.out.println("( 1 ) Van");
                     System.out.println("( 2 ) Vuc");
@@ -74,7 +75,8 @@ public class SistemaEstoque {
                             break;
                     }
                 
-                    sc.nextLine(); // Limpa o buffer do scanner
+                    sc.nextLine(); // Limpa o buffer do scanner, nesse caso para não pegar o espaço
+
                     System.out.println("##### qual a placa do veiculo ######");
                     System.out.print("coloque no seguinte formato (FFF0F00): ");
                     veiculo.placaVeiculo = sc.nextLine();
@@ -87,11 +89,10 @@ public class SistemaEstoque {
                     System.out.print("coloque no seguinte formato (100): ");
                     veiculo.capacidadeCarga = sc.nextDouble();
                     
-                    sc.nextLine(); // Limpa o buffer do scanner
+                    sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
                     System.out.print("Unidade de medida (kg ou t): ");
                     veiculo.tipoMedida = sc.nextLine();
 
-                    // Repete até a entrada ser 't' ou 'kg'
                     while (!veiculo.tipoMedida.equalsIgnoreCase("t") && !veiculo.tipoMedida.equalsIgnoreCase("kg")) {
                         System.out.print("Unidade inválida. Repita novamente (kg ou t): ");
                         veiculo.tipoMedida = sc.nextLine();
@@ -105,13 +106,37 @@ public class SistemaEstoque {
                     break;
 
                 case 2:
-                    System.out.println("Funcionalidade de remoção a ser implementada.");
+                    
+                    
+                    System.out.println("\n##### Frota Cadastrada #####");
+                    
+                    
+                    if (totalVeiculos == 0) {
+                        System.out.println("Nenhum veículo cadastrado para remover");
+                    } else {
+                        for(int i = 0; i < totalVeiculos; i++){
+                            frota[i].exibirDados();
+                        }
+                        for(int i = 0; i != totalVeiculos; i++ ){
+                            System.out.print("Qual veículo quer remover da frota : ");
+                            int removerVeiculo = sc.nextInt();
+
+                            if(removerVeiculo > totalVeiculos){
+                                
+
+
+                            }
+
+                        }
+                    }
+                    
+
                     break;
 
                 case 3:
                     System.out.println("\n##### Frota Cadastrada #####");
                     if (totalVeiculos == 0) {
-                        System.out.println("Nenhum veículo cadastrado.");
+                        System.out.println("Nenhum veículo cadastrado no momento.");
                     } else {
                         for (int i = 0; i < totalVeiculos; i++) {
                             frota[i].exibirDados();
