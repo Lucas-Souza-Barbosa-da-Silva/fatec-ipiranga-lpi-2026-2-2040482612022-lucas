@@ -1,39 +1,15 @@
 import java.util.Scanner;
-
-class Veiculo {
-    int tamanhoFrota = 12;
-    int[][] idEntrega = new int[12][];
-    String placaVeiculo;
-    String modeloVeiculo;
-    int anoFabricacao;
-    double capacidadeCarga;
-    String tipoMedida;
-    boolean statusManutencao = false;
-    
-    public void adicionarCarro(String placaVeiculo, String modeloVeiculo, int anoFabricacao, double capacidadeCarga, String tipoMedida) {
-        this.placaVeiculo = placaVeiculo;
-        this.modeloVeiculo = modeloVeiculo;
-        this.anoFabricacao = anoFabricacao;
-        this.capacidadeCarga = capacidadeCarga;
-        this.statusManutencao = false; 
-        this.tipoMedida = tipoMedida;
-
-    }
-
-    public void exibirDados() {
-        System.out.println("Placa: " + placaVeiculo + " | Modelo: " + modeloVeiculo + 
-                           " | Ano: " + anoFabricacao + " | Capacidade: " + capacidadeCarga + " " + tipoMedida);
-    }
-}
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 
 public class SistemaEstoque {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        
-        // Array para armazenar os veículos cadastrados
-        Veiculo[] frota = new Veiculo[12];
-        int totalVeiculos = 0;
-        int opcao = 0;
+
+        int opcao;
 
         while (opcao != 4) {
             System.out.println("\n##### Sistema de Estoque #####");
@@ -47,69 +23,60 @@ public class SistemaEstoque {
             
             switch (opcao) {
                 case 1:
-                    if (totalVeiculos >= frota.length) {
-                        System.out.println("Limite da frota atingido!");
-                        break;
-                    }
-
-                    Veiculo veiculo = new Veiculo();
                     
                     System.out.println("\nQual o veiculo quer cadastrar");
                     System.out.println("( 1 ) Van");
                     System.out.println("( 2 ) Vuc");
                     System.out.println("( 3 ) Caminhao");
-                    int opcaoModelo = sc.nextInt();
+                    int modeloVeiculo = sc.nextInt();
                     
-                    switch (opcaoModelo) {
-                        case 1:
-                            veiculo.modeloVeiculo = "Van";
-                            break;
-                        case 2:
-                            veiculo.modeloVeiculo = "Vuc";
-                            break;
-                        case 3:
-                            veiculo.modeloVeiculo = "Caminhao";
-                            break;
-                        default:
-                            veiculo.modeloVeiculo = "Outro";
-                            break;
-                    }
-                
                     sc.nextLine(); // Limpa o buffer do scanner, nesse caso para não pegar o espaço
 
                     System.out.println("##### qual a placa do veiculo ######");
                     System.out.print("coloque no seguinte formato (FFF0F00): ");
-                    veiculo.placaVeiculo = sc.nextLine();
+                    String placaVeiculo = sc.nextLine();
                     
                     System.out.println("##### ano do veiculo ######");
                     System.out.print("coloca no seguinte formato (1999): ");
-                    veiculo.anoFabricacao = sc.nextInt();
+                    int anoFabricacao = sc.nextInt();
 
                     System.out.println("##### capacidade de carga #####");
                     System.out.print("coloque no seguinte formato (100): ");
-                    veiculo.capacidadeCarga = sc.nextDouble();
+                    Double capacidadeCarga = sc.nextDouble();
                     
                     sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
+                    
                     System.out.print("Unidade de medida (kg ou t): ");
-                    veiculo.tipoMedida = sc.nextLine();
+                    String tipoMedida = sc.nextLine();
 
-                    while (!veiculo.tipoMedida.equalsIgnoreCase("t") && !veiculo.tipoMedida.equalsIgnoreCase("kg")) {
+                    while (!tipoMedida.equalsIgnoreCase("t") && !tipoMedida.equalsIgnoreCase("kg")) {
                         System.out.print("Unidade inválida. Repita novamente (kg ou t): ");
-                        veiculo.tipoMedida = sc.nextLine();
+                        tipoMedida = sc.nextLine();
                     }
 
                     // Salva o veículo no vetor da frota
-                    frota[totalVeiculos] = veiculo;
-                    totalVeiculos++;
+                    try (BufferedWriter bw = new BufferedWriter(new FileWriter("Frota_Da_Empresa.txt"))){
+                        bw.write(modeloVeiculo +" | "+ placaVeiculo +" | "+ anoFabricacao +" | "+ capacidadeCarga +" | "+ tipoMedida +" | ");
+                        bw.newLine();
+
+                    } catch (IOException e) {
+                        // TODO: handle exception
+                    }                    
 
                     System.out.println("Veículo cadastrado com sucesso!");
                     break;
 
                 case 2:
-                    
-                    
                     System.out.println("\n##### Frota Cadastrada #####");
                     
+                    try (BufferedReader br = new BufferedReader(new FileReader("Frota_Da_Empresa.txt"))){
+                    String linha;
+                    while ((linha = br.readLine()) != null) {
+                            System.out.println(linha);      
+                        }
+                    } catch (IOException e) {
+                    // TODO: handle exception
+                    }        
                     
                     if (totalVeiculos == 0) {
                         System.out.println("Nenhum veículo cadastrado para remover");
@@ -123,24 +90,21 @@ public class SistemaEstoque {
 
                             if(removerVeiculo > totalVeiculos){
                                 
-
-
                             }
 
                         }
                     }
                     
-
                     break;
 
                 case 3:
-                    System.out.println("\n##### Frota Cadastrada #####");
-                    if (totalVeiculos == 0) {
-                        System.out.println("Nenhum veículo cadastrado no momento.");
-                    } else {
-                        for (int i = 0; i < totalVeiculos; i++) {
-                            frota[i].exibirDados();
+                    try (BufferedReader br = new BufferedReader(new FileReader("Frota_Da_Empresa.txt"))){
+                    String linha;
+                    while ((linha = br.readLine()) != null) {
+                            System.out.println(linha);      
                         }
+                    } catch (IOException e) {
+                    // TODO: handle exception
                     }
                     break;
 
@@ -150,10 +114,19 @@ public class SistemaEstoque {
 
                 default:
                     System.out.println("Opção inválida!");
+                    System.out.println("Tenta outra opção.");
+
                     break;
             }
         }
         
         sc.close();
     }
+    public static void exibirDados() {
+        System.out.println("Placa: " + placaVeiculo + " | Modelo: " + modeloVeiculo + 
+                           " | Ano: " + anoFabricacao + " | Capacidade: " + capacidadeCarga + " " + tipoMedida);
+    }
+  
+
+
 }
