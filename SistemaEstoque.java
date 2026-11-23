@@ -9,7 +9,7 @@ public class SistemaEstoque {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        int opcao;
+        int opcao = 0;
 
         while (opcao != 4) {
             System.out.println("\n##### Sistema de Estoque #####");
@@ -77,23 +77,7 @@ public class SistemaEstoque {
                     } catch (IOException e) {
                     // TODO: handle exception
                     }        
-                    
-                    if (totalVeiculos == 0) {
-                        System.out.println("Nenhum veículo cadastrado para remover");
-                    } else {
-                        for(int i = 0; i < totalVeiculos; i++){
-                            frota[i].exibirDados();
-                        }
-                        for(int i = 0; i != totalVeiculos; i++ ){
-                            System.out.print("Qual veículo quer remover da frota : ");
-                            int removerVeiculo = sc.nextInt();
-
-                            if(removerVeiculo > totalVeiculos){
-                                
-                            }
-
-                        }
-                    }
+                   
                     
                     break;
 
@@ -122,11 +106,4 @@ public class SistemaEstoque {
         
         sc.close();
     }
-    public static void exibirDados() {
-        System.out.println("Placa: " + placaVeiculo + " | Modelo: " + modeloVeiculo + 
-                           " | Ano: " + anoFabricacao + " | Capacidade: " + capacidadeCarga + " " + tipoMedida);
-    }
-  
-
-
 }
