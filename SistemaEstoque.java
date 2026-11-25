@@ -7,156 +7,142 @@ import java.io.BufferedWriter;
 
 public class SistemaEstoque {
     //definindo o tamanho maximo de motoristas que a empresa tem
-        final int MAX_MOTORISTAS = 30;
+        static final int MAX_MOTORISTAS = 30;
         
-        String informacoesMotorista = "Codigo;Nome;Cnh;Situacao";
+        static String informacoesMotorista = "Codigo;Nome;Cnh;Situacao";
         
         //arrays para os motoristas
-        int[] codigosMotorista = new int[MAX_MOTORISTAS];
+        static int[] codigosMotorista = new int[MAX_MOTORISTAS];
 
-        String[] nomesMotoristas = new String[MAX_MOTORISTAS];
+        static String[] nomesMotoristas = new String[MAX_MOTORISTAS];
 
-        int[] categoriasCnh = new int[MAX_MOTORISTAS];
-        int[] situacoesMotoristas = new int[MAX_MOTORISTAS];
+        static int[] categoriasCnh = new int[MAX_MOTORISTAS];
+        static int[] situacoesMotoristas = new int[MAX_MOTORISTAS];
 
-        int qtdMotoristas = 0; //qtd = Quantidade
+        static int qtdMotoristas = 0; //qtd = Quantidade
 
         // definindo o tamanho maximo da frota da empresa
-        final int MAX_VEICULOS = 20;
+        static final int MAX_VEICULOS = 20;
         
-        String informacoesVeiculo = "Placa;Modelo;Tipo;Capacidade_KG;Consumo_KML;Situacao";
+        static String informacoesVeiculo = "Placa;Modelo;Tipo;Capacidade_KG;Consumo_KML;Situacao";
         //arrays para os veiculos
-        String[] placas = new String[MAX_VEICULOS];
-        String[] modelos = new String[MAX_VEICULOS];
+        static String[] placas = new String[MAX_VEICULOS];
+        static String[] modelos = new String[MAX_VEICULOS];
         
-        int[] tiposVeiculo = new int[MAX_VEICULOS];
+        static int[] tiposVeiculo = new int[MAX_VEICULOS];
         
-        double[] capacidadesKg = new double[MAX_VEICULOS];
-        double[] consumosKmL = new double[MAX_VEICULOS];
+        static double[] capacidadesKg = new double[MAX_VEICULOS];
+        static double[] consumosKmL = new double[MAX_VEICULOS];
 
-        int[] situacoesVeiculo = new int[MAX_VEICULOS];        
-        int[] codigosVeiculo = new int[MAX_VEICULOS];
+        static int[] situacoesVeiculo = new int[MAX_VEICULOS];        
+        static int[] codigosVeiculo = new int[MAX_VEICULOS];
 
-        int qtdVeiculos = 0; //qtd = Quantidade 
+        static int qtdVeiculos = 0; //qtd = Quantidade 
 
         //defindo o tamanho maximo de entregas 
-        final int MAX_ENTREGAS = 300;
+        static final int MAX_ENTREGAS = 300;
         
-        String informacoesEntregas = "Codigo;Destino;Peso_KG;Distancia_KM;Placa;Codigo_Motorista;Dia;Situacao";
+        static String informacoesEntregas = "Codigo;Destino;Peso_KG;Distancia_KM;Placa;Codigo_Motorista;Dia;Situacao";
         
         //arrays para as entregas
-        int[] codigosEntregas = new int[MAX_ENTREGAS];
+        static int[] codigosEntregas = new int[MAX_ENTREGAS];
 
-        String[] destinos = new String[MAX_ENTREGAS];
+        static String[] destinos = new String[MAX_ENTREGAS];
 
-        double[] pesosKg = new double[MAX_ENTREGAS];
-        double[] distanciasKm = new double[MAX_ENTREGAS];
+        static double[] pesosKg = new double[MAX_ENTREGAS];
+        static double[] distanciasKm = new double[MAX_ENTREGAS];
 
-        int[] entVeiculo = new int[MAX_ENTREGAS]; //ent = entrega
-        int[] entMotorista = new int[MAX_ENTREGAS];
-        int[] entDia = new int[MAX_ENTREGAS];
-        int[] situacoesEntrega = new int[MAX_ENTREGAS];
+        static int[] entVeiculo = new int[MAX_ENTREGAS]; //ent = entrega
+        static int[] entMotorista = new int[MAX_ENTREGAS];
+        static int[] entDia = new int[MAX_ENTREGAS];
+        static int[] situacoesEntrega = new int[MAX_ENTREGAS];
         //as matrizes desse sistema
-        double[][] kmVeiculoDia = new double[MAX_VEICULOS][6];
+        static double[][] kmVeiculoDia = new double[MAX_VEICULOS][6];
 
-        int[][] entregasVeiculoDia = new int[MAX_VEICULOS][6];
+        static int[][] entregasVeiculoDia = new int[MAX_VEICULOS][6];
 
 
-        int qtdEntregas = 0; //qtd = Quantidade 
+        static int qtdEntregas = 0; //qtd = Quantidade 
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         //
-        carregarDados(20, 30, 300);
+        carregarDados();
 
         int opcao = 0;
 
-        while (opcao != 4) {
+        while (opcao != 0) {
             System.out.println("\n##### Sistema de Estoque #####");
-            System.out.println("( 1 ) Cadastrar");
-            System.out.println("( 2 ) Remover");
-            System.out.println("( 3 ) Verificar a frota" );
-            System.out.println("( 4 ) Exit ");
+            System.out.println("( 1 ) Cadastrar Veiculo");
+            System.out.println("( 2 ) Listar Veiculos");
+            System.out.println("( 3 ) Alterar Situacao" );
+            System.out.println("( 4 ) Cadastrar motorista");
+            System.out.println("( 5 ) Gerenciar Motoristas");
+            System.out.println("( 6 ) Cadastrar Entrega");
+            System.out.println("( 7 ) Relatorio do Semanal");
+
+            
             System.out.print("Escolha uma opção: ");
             
             opcao = sc.nextInt();
             
+            sc.nextLine(); //limpar o buffer , quebra de linha
+
             switch (opcao) {
-                case 1:
+                case 0:
+                    System.out.println("Saindo do sistema...");
+            
+                    break;
                     
-                    System.out.println("\nQual o veiculo quer cadastrar");
-                    System.out.println("( 1 ) Van");
-                    System.out.println("( 2 ) Vuc");
-                    System.out.println("( 3 ) Caminhao");
-                    int modeloVeiculo = sc.nextInt();
+                case 1:
+                    System.out.println("##### qual a placa do veiculo ######");
+                    System.out.print("coloque no seguinte formato (FFF0F00): ");
+                    String placa = sc.nextLine();
+                    
+                    System.out.println("\n##### Qual o modelo quer cadastrar #####");
+                    System.out.println("( 1 ) Fiorino, tem menos capacidade sendo mais economico na gasolina");
+                    System.out.println("( 2 ) Delivery, tem mais capacidade sendo mais gastao na gasolina");
+                    String modelo = sc.nextLine();
                     
                     sc.nextLine(); // Limpa o buffer do scanner, nesse caso para não pegar o espaço
 
-                    System.out.println("##### qual a placa do veiculo ######");
-                    System.out.print("coloque no seguinte formato (FFF0F00): ");
-                    String placaVeiculo = sc.nextLine();
+                    System.out.println("\n##### Qual o tipo do veiculo #####");
+                    String tipos = sc.nextLine();
                     
-                    System.out.println("##### ano do veiculo ######");
-                    System.out.print("coloca no seguinte formato (1999): ");
-                    int anoFabricacao = sc.nextInt();
+                    System.out.println("##### capacidade de carga ######");
+                    System.out.print("coloca no seguinte formato (100): ");
+                    double capacidadesKg = sc.nextDouble();
 
-                    System.out.println("##### capacidade de carga #####");
+                    System.out.println("##### consumo por km/h #####");
                     System.out.print("coloque no seguinte formato (100): ");
-                    Double capacidadeCarga = sc.nextDouble();
-                    
+                    Double consumosKml = sc.nextDouble();
+
                     sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
                     
-                    System.out.print("Unidade de medida (kg ou t): ");
-                    String tipoMedida = sc.nextLine();
-
-                    while (!tipoMedida.equalsIgnoreCase("t") && !tipoMedida.equalsIgnoreCase("kg")) {
-                        System.out.print("Unidade inválida. Repita novamente (kg ou t): ");
-                        tipoMedida = sc.nextLine();
-                    }
-
-                    // Salva o veículo no vetor da frota
-                    try (BufferedWriter bw = new BufferedWriter(new FileWriter("Frota_Da_Empresa.txt"))){
-                        bw.write(modeloVeiculo +" ; "+ placaVeiculo +" ; "+ anoFabricacao +" ; "+ capacidadeCarga +" ; "+ tipoMedida +" ; ");
-                        bw.newLine();
-
-                    } catch (IOException e) {
-                        // TODO: handle exception
-                    }                    
+                    //salva atraves do metodo
+                    cadastrarVeiculo(placa,modelo,tipos,capacidadesKg,consumosKml);                  
 
                     System.out.println("Veículo cadastrado com sucesso!");
                     break;
 
                 case 2:
                     System.out.println("\n##### Frota Cadastrada #####");
-                    
-                    try (BufferedReader br = new BufferedReader(new FileReader("Frota_Da_Empresa.txt"))){
-                    String linha;
-                    while ((linha = br.readLine()) != null) {
-                            System.out.println(linha);      
-                        }
-                    } catch (IOException e) {
-                    // TODO: handle exception
-                    }        
-                   
+                         
+                    listarVeiculos();
                     
                     break;
 
                 case 3:
-                    try (BufferedReader br = new BufferedReader(new FileReader("Frota_Da_Empresa.txt"))){
-                    String linha;
-                    while ((linha = br.readLine()) != null) {
-                            System.out.println(linha);      
-                        }
-                    } catch (IOException e) {
-                    // TODO: handle exception
-                    }
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
                     break;
 
-                case 0:
-                    System.out.println("Saindo do sistema...");
-            
-                    break;
-                    
                 default:
                     System.out.println("Opção inválida!");
                     System.out.println("Tenta outra opção.");
@@ -167,71 +153,72 @@ public class SistemaEstoque {
         
         sc.close();
     }
-    public static void carregarDados(int MAX_VEICULOS, int MAX_MOTORISTAS, int MAX_ENTREGAS){
-        int contador = 0;
+    public static void carregarDados(){
+        String linha,cabecario;
+        
         //lendo o veiculo.txt
         try(BufferedReader br = new BufferedReader(new FileReader("veiculos.txt"))) {
-            String linha;
+            cabecario = br.readLine();
+           
             while ((linha = br.readLine()) != null) {
                 String[] bloco = linha.split(";");
                 
                 //colocando os dados em seus respectivos arreys
-                placas[contador] = bloco[0];
-                modelos[contador] = bloco[1];
+                placas[qtdVeiculos] = bloco[0];
+                modelos[qtdVeiculos] = bloco[1];
                 
-                tiposVeiculo[contador] = Integer.parseInt(bloco[2]);
+                tiposVeiculo[qtdVeiculos] = Integer.parseInt(bloco[2]);
                 
-                capacidadesKg[contador] = Double.parseDouble(bloco[3]);
-                consumosKmL[contador] = Double.parseDouble(bloco[4]);
+                capacidadesKg[qtdVeiculos] = Double.parseDouble(bloco[3]);
+                consumosKmL[qtdVeiculos] = Double.parseDouble(bloco[4]);
 
-                situacoesVeiculo[contador] = Integer.parseInt(bloco[5]);
+                situacoesVeiculo[qtdVeiculos] = Integer.parseInt(bloco[5]);
 
-                contador++;
+                qtdVeiculos++;
             }
         } catch (Exception e) {
             // TODO: handle exception
         }
-        contador = 0;
 
         //lendo motoristas.txt
         try (BufferedReader br = new BufferedReader(new FileReader("motoristas.txt"))){
-            String linha;
+            cabecario = br.readLine();
+
             while ((linha = br.readLine()) != null) {
                 String[] bloco = linha.split(";");
                 //colocando os dados em seus respectivos arreys
-                codigosMotorista[contador] = Integer.parseInt(bloco[0]);
+                codigosMotorista[qtdMotoristas] = Integer.parseInt(bloco[0]);
                 
-                nomesMotoristas[contador] = bloco[1];
+                nomesMotoristas[qtdMotoristas] = bloco[1];
 
-                categoriasCnh[contador] = Integer.parseInt(bloco[2]);
-                situacoesMotoristas[contador] = Integer.parseInt(bloco[3]);
+                categoriasCnh[qtdMotoristas] = Integer.parseInt(bloco[2]);
+                situacoesMotoristas[qtdMotoristas] = Integer.parseInt(bloco[3]);
                 
-                contador++;
+                qtdMotoristas++;
             }
         } catch (Exception e) {
             // TODO: handle exception
-        }
-        contador = 0;
-        
+        }        
         //lendo entregas.txt
         try (BufferedReader br = new BufferedReader(new FileReader("entregas.txt"))){
-            String linha;
+            cabecario = br.readLine();
+
             while ((linha = br.readLine()) != null){
                 String[] bloco = linha.split(";");
 
-                codigosEntregas[] = Integer.parseInt(bloco[0]);
+                codigosEntregas[qtdEntregas] = Integer.parseInt(bloco[0]);
 
-                destinos[] = bloco[1];
+                destinos[qtdEntregas] = bloco[1];
 
-                pesosKg[] = Double.parseDouble(bloco[2]);
-                distanciasKm = Double.parseDouble(bloco[3]);
+                pesosKg[qtdEntregas] = Double.parseDouble(bloco[2]);
+                distanciasKm[qtdEntregas] = Double.parseDouble(bloco[3]);
             
-                entVeiculo = Integer.parseInt(bloco[4]);
-                entMotorista = Integer.parseInt(bloco[5]);
-                entDia = Integer.parseInt(bloco[6]);
-                situacoesEntrega = Integer.parseInt(bloco[7]);
+                entVeiculo[qtdEntregas] = Integer.parseInt(bloco[4]);
+                entMotorista[qtdEntregas] = Integer.parseInt(bloco[5]);
+                entDia[qtdEntregas] = Integer.parseInt(bloco[6]);
+                situacoesEntrega[qtdEntregas] = Integer.parseInt(bloco[7]);
 
-                contador++;
+                qtdEntregas++;
             }
 
         } catch (Exception e) {
@@ -239,4 +226,27 @@ public class SistemaEstoque {
         }
     
     }
+    public static void cadastrarVeiculo(String placa, String Modelo, String Tipo, Double CabacidadeMax, Double ConsumoKML){
+        String situcaoVeiculo = "Disponivel";
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+    }
+    
+    public static void listarVeiculos(){
+        try (BufferedReader br = new BufferedReader(new FileReader("veiculos.txt"))){
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                System.out.println(linha);
+            }
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+
 }
