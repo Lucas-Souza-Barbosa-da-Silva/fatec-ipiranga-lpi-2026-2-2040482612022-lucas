@@ -102,48 +102,25 @@ public class SistemaEstoque {
 
                     System.out.println("##### qual a placa do veiculo ######");
                     System.out.print("coloque no seguinte formato (FFF0F00): ");
-                    placa = sc.nextLine();
+                    placa = lerTexto();
                    
                     System.out.println("\n##### Qual o modelo quer cadastrar #####");
                     System.out.println("( 1 ) Fiorino, tem menos capacidade sendo mais economico na gasolina");
                     System.out.println("( 2 ) Delivery, tem mais capacidade sendo mais gastao na gasolina");
-                    modelo = sc.nextLine();
+                    modelo = lerTexto();
                     
-                    sc.nextLine(); // Limpa o buffer do scanner, nesse caso para não pegar o espaço
-
                     System.out.println("\n##### Qual o tipo do veiculo #####");
-                    tipos = sc.nextLine();
+                    tipos = lerTexto();
                     
                     System.out.println("##### capacidade de carga ######");
                     System.out.print("coloca no seguinte formato (100): ");
 
-                    do {
-                       try {
-                            capacidadesKg = sc.nextDouble();
-
-                        } catch (Exception e) {
-                            escolhaErrada = true;
-                            System.out.print(escolhaErrada());
-                            // TODO: handle exception
-                        }
-             
-                    } while (escolhaErrada == true);  
+                    capacidadesKg = lerDecimal();  
 
                     System.out.println("##### consumo por km/h #####");
                     System.out.print("coloque no seguinte formato (100): ");
                     
-                    do {
-                       try {
-                            consumosKml = sc.nextDouble();
-
-                        } catch (Exception e) {
-                            escolhaErrada = true;
-                            System.out.print(escolhaErrada());
-                            // TODO: handle exception
-                        }
-             
-                    } while (escolhaErrada == true);   
-
+                    consumosKml = lerDecimal();
 
                     sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
                     
@@ -163,49 +140,26 @@ public class SistemaEstoque {
                 case 3:
                     break;
                 case 4:
-                    String nomesMotoristas = "a", opcaoIntermedia, situacaoMotorista = "a";
-                    int categoriaCnh = 0;
+                    String nome , opcaoIntermedia;
+                    int codigo = 0, cnh = 0;
 
-                    System.out.println("##### qual a o nome motorista ######");
-                    nomesMotoristas = sc.nextLine();
+                    System.out.println("##### Qual e o codigo do motorista ######");
+                    codigo = lerInteiro();
+
+                    System.out.println("##### Qual e o nome motorista ######");
+                    nome = lerTexto();
                     
-                    System.out.println("\n##### Qual a Categoria do CNH #####");
+                    System.out.println("##### Qual a Categoria do CNH #####");
                     System.out.println("( 1 ) CNH B");
                     System.out.println("( 2 ) CNH C");
                     System.out.println("( 3 ) CNH D");
 
-                    do {
-                       try {
-                            opcaoIntermedia = sc.nextLine();
-                            categoriaCnh = Integer.parseInt(opcaoIntermedia);
-
-                        } catch (Exception e) {
-                            escolhaErrada = true;
-                            System.out.print(escolhaErrada());
-                            // TODO: handle exception
-                        }
-             
-                    } while (escolhaErrada == true);
-                                            
-                    sc.nextLine(); // Limpa o buffer do scanner, nesse caso para não pegar o espaço
-
-                    System.out.println("\n##### Situacao do motorista #####");
-                    do {
-                       try {
-                            situacaoMotorista = sc.nextLine();
-
-                        } catch (Exception e) {
-                            escolhaErrada = true;
-                            System.out.print(escolhaErrada());
-                            // TODO: handle exception
-                        }
-             
-                    } while (escolhaErrada == true);                    
-
+                    cnh = lerInteiro();
+                                                          
                     sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
                     
                     //salva atraves do metodo
-                    cadastrarMotorista(categoriaCnh, nomesMotoristas, categoriaCnh, situacaoMotorista);
+                    cadastrarMotorista(codigo, nome, cnh);
 
                     break;
                 case 5:
@@ -296,20 +250,98 @@ public class SistemaEstoque {
         }
         
     }
+    static int lerInteiro(){
+        Scanner sc = new Scanner(System.in);
+        
+        int valor;
+        
+        while (true) {
+            try {
+                String entrada = sc.nextLine();
+                
+                entrada = entrada.replace(",", ".");
+                
+                valor = Integer.parseInt(entrada);
+                
+                return valor;
+            } catch (NumberFormatException e) {
+                System.out.println(escolhaErrada());
+
+                }
+            }
+        }
+
+    static double lerDecimal() {
+        Scanner sc = new Scanner(System.in);
+
+        double valor;
+
+        while (true) {
+
+            try {
+
+                String entrada = sc.nextLine();
+
+                entrada = entrada.replace(",", ".");
+
+                valor = Double.parseDouble(entrada);
+
+                return valor;
+
+            } catch (NumberFormatException e) {
+                System.out.println(escolhaErrada());
+
+            }
+        }
+    }
+    static String lerTexto(){
+        Scanner sc = new Scanner(System.in);
+        // nesse metodo é menor por nao ter conversão
+        while (true) {
+            
+            try {
+                
+                String entrada = sc.nextLine();
+
+                return entrada;
+            } catch (Exception e) {
+                System.out.println(escolhaErrada());
+            }
+        }
+    }    
+
     public static String cadastrarVeiculo(String placa, String modelo, String tipo, Double cabacidadeMax, Double consumoKML){
-        String situcaoVeiculo = "Disponivel";
-        if (qtdVeiculos <= MAX_VEICULOS) {
+        if (qtdVeiculos >= MAX_VEICULOS) {
             return "Não ha espaco na frota";
             
         } else {
-            for(int a = 0; a <= qtdVeiculos; a ++) {
-                try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
+            //colocando todas as informacoes no arrey, em sua posicao especifica 
+            placas[qtdVeiculos] = placa;
+            modelos[qtdVeiculos] = modelo;
+
+            tiposVeiculo[qtdVeiculos] = Integer.parseInt(tipo);
+
+            capacidadesKg[qtdVeiculos] = cabacidadeMax;
+            consumosKmL[qtdVeiculos] = consumoKML;
+
+            situacoesVeiculo[qtdVeiculos] = 1;
+
+            qtdVeiculos++;
+            // o try catch é caso não consiga gravar o arquivo
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
+                // escreve o cabecario do arquivo
+                bw.write(informacoesVeiculo);
+                // indo para a proxima linha
+                bw.newLine();
+
+                //escreve toda a informacao que esta no arreys, reescrevendo
+                for(int a = 0; a <= qtdVeiculos; a ++) {
                     bw.write(placas[a] +";"+ modelos[a] +";"+ tiposVeiculo[a] +";"+ capacidadesKg[a] +";"+ consumosKmL[a]);
-                
-                } catch (Exception e) {
+        
+                } 
+            }catch (Exception e) {
                 // TODO: handle exception
                 } 
-            }
             return "\nVeículo cadastrado com sucesso!";  
         }
        
@@ -329,19 +361,40 @@ public class SistemaEstoque {
     public static String escolhaErrada(){
         return "\nOpção invalida, Tenta novamente"; //mensagem basica de erro
     }
-    public static String cadastrarMotorista(int codigo, String nome, int cnh, String Situacao){
-        if (qtdMotoristas <= MAX_MOTORISTAS ) {
+    public static String cadastrarMotorista(int codigo, String nome, int cnh){
+        if (qtdMotoristas >= MAX_MOTORISTAS ) {
             return "Não ha espaco na empresa";
-        
+    
         } else {
-            for(int a = 0; a <= qtdMotoristas; a ++) {
-                try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
-                    bw.write(codigosMotorista[a] +";"+ nomesMotoristas[a] +";"+ categoriasCnh[a] +";"+ situacoesMotoristas[a]);
+                //colocando os dados no arrey
+                codigosMotorista[qtdMotoristas] = codigo;
                 
-                } catch (Exception e) {
+                nomesMotoristas[qtdMotoristas] = nome;
+                
+                categoriasCnh[qtdMotoristas] = cnh;
+                
+                situacoesMotoristas[qtdMotoristas] = 1;
+            
+                qtdMotoristas++;
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
+                //escrever o cabecario
+                bw.write(informacoesMotorista);
+                // mudar de linha 
+                bw.newLine(); 
+                
+                //repetindo, guarda todo o arrey
+                for(int a = 0; a < qtdMotoristas; a ++) {
+                bw.write(codigosMotorista[a] +";"+ nomesMotoristas[a] +";"+ categoriasCnh[a] +";"+ situacoesMotoristas[a]);
+                //pular linha
+                bw.newLine();
+ 
+                }    
+            } 
+            
+            catch (Exception e) {
                 // TODO: handle exception
-                } 
-            }
+                
+                }
             return "\nMotorista cadastrado com sucesso!";
         }
         
