@@ -2,7 +2,6 @@ import java.util.Scanner;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.DrbgParameters.Capability;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
@@ -66,12 +65,11 @@ public class SistemaEstoque {
         static int qtdEntregas = 0; //qtd = Quantidade 
 
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
         //
         carregarDados();
 
+        String resultado;
         int opcao = 0;
-        Boolean escolhaErrada = false;
 
         do {
             System.out.println("\n##### Sistema de Estoque #####");
@@ -82,14 +80,13 @@ public class SistemaEstoque {
             System.out.println("( 5 ) Gerenciar Motoristas");
             System.out.println("( 6 ) Cadastrar Entrega");
             System.out.println("( 7 ) Relatorio do Semanal");
+            System.out.println("( 0 ) Sair");
 
             
             System.out.print("Escolha uma opção: ");
             
-            opcao = sc.nextInt();
+            opcao = lerInteiro();
             
-            sc.nextLine(); //limpar o buffer , quebra de linha
-
             switch (opcao) {
                 case 0:
                     System.out.println("Saindo do sistema...");
@@ -102,12 +99,22 @@ public class SistemaEstoque {
 
                     System.out.println("##### qual a placa do veiculo ######");
                     System.out.print("coloque no seguinte formato (FFF0F00): ");
-                    placa = lerTexto();
-                   
+                    
+                    do{
+                        placa = lerTexto();
+                        if (placa.length() != 7) {
+                          System.out.println(escolhaErrada()); 
+                           
+                        } else {}
+                    }while (placa.length() != 7);
+                    
                     System.out.println("\n##### Qual o modelo quer cadastrar #####");
-                    System.out.println("( 1 ) Fiorino, tem menos capacidade sendo mais economico na gasolina");
-                    System.out.println("( 2 ) Delivery, tem mais capacidade sendo mais gastao na gasolina");
-                    modelo = lerTexto();
+                    System.out.println("( 1 ) Utilitário");
+                    System.out.println("( 2 ) Caminhão leve");
+                    do{
+                        modelo = lerTexto();
+                    }while (modelo == "1" || modelo == "2");
+                    
                     
                     System.out.println("\n##### Qual o tipo do veiculo #####");
                     tipos = lerTexto();
@@ -121,13 +128,11 @@ public class SistemaEstoque {
                     System.out.print("coloque no seguinte formato (100): ");
                     
                     consumosKml = lerDecimal();
-
-                    sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
                     
                     //salva atraves do metodo
-                    cadastrarVeiculo(placa,modelo,tipos,capacidadesKg,consumosKml);                  
+                    resultado = cadastrarVeiculo(placa,modelo,tipos,capacidadesKg,consumosKml);                  
 
-                    System.out.println("Veículo cadastrado com sucesso!");
+                    System.out.println(resultado);
                     break;
 
                 case 2:
@@ -140,11 +145,19 @@ public class SistemaEstoque {
                 case 3:
                     break;
                 case 4:
-                    String nome , opcaoIntermedia;
+                    String nome;
                     int codigo = 0, cnh = 0;
 
                     System.out.println("##### Qual e o codigo do motorista ######");
-                    codigo = lerInteiro();
+                    do{
+                        codigo = lerInteiro();
+                        if (codigo < 1 || codigo > 999) {
+                          System.out.println("coloca um codigo valido ex:(1)"); 
+
+                        } else {}
+                    }while (codigo < 1 || codigo > 999);
+
+
 
                     System.out.println("##### Qual e o nome motorista ######");
                     nome = lerTexto();
@@ -154,9 +167,15 @@ public class SistemaEstoque {
                     System.out.println("( 2 ) CNH C");
                     System.out.println("( 3 ) CNH D");
 
-                    cnh = lerInteiro();
+                    do{
+                        cnh = lerInteiro();
+                        if (cnh < 1 || cnh > 3) {
+                          System.out.println(escolhaErrada()); 
+                           
+                        } else {}
+                    }while (cnh < 1 || cnh > 3);
                                                           
-                    sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
+                    //sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
                     
                     //salva atraves do metodo
                     cadastrarMotorista(codigo, nome, cnh);
@@ -176,14 +195,13 @@ public class SistemaEstoque {
             }
         }while (opcao != 0);
         
-        sc.close();
     }
     public static void carregarDados(){
-        String linha,cabecario;
+        String linha;
         
         //lendo o veiculo.txt
         try(BufferedReader br = new BufferedReader(new FileReader("veiculos.txt"))) {
-            cabecario = br.readLine();
+            linha = br.readLine();
            
             while ((linha = br.readLine()) != null) {
                 String[] bloco = linha.split(";");
@@ -201,13 +219,14 @@ public class SistemaEstoque {
 
                 qtdVeiculos++;
             }
-        } catch (Exception e) {
-            // TODO: handle exception
+        } catch (IOException e) {
+            System.out.println("erro de leitura do arquivo: veiculos.txt");
+
         }
 
         //lendo motoristas.txt
         try (BufferedReader br = new BufferedReader(new FileReader("motoristas.txt"))){
-            cabecario = br.readLine();
+            linha = br.readLine();
 
             while ((linha = br.readLine()) != null) {
                 String[] bloco = linha.split(";");
@@ -221,12 +240,12 @@ public class SistemaEstoque {
                 
                 qtdMotoristas++;
             }
-        } catch (Exception e) {
-            // TODO: handle exception
+        } catch (IOException e) {
+            System.out.println("erro de leitura do arquivo: motoristas.txt");
         }        
         //lendo entregas.txt
         try (BufferedReader br = new BufferedReader(new FileReader("entregas.txt"))){
-            cabecario = br.readLine();
+            linha = br.readLine();
 
             while ((linha = br.readLine()) != null){
                 String[] bloco = linha.split(";");
@@ -245,8 +264,8 @@ public class SistemaEstoque {
 
                 qtdEntregas++;
             }
-        } catch (Exception e) {
-            // TODO: handle exception
+        } catch (IOException e) {
+            System.out.println("erro de leitura do arquivo: entregas.txt");
         }
         
     }
@@ -268,6 +287,7 @@ public class SistemaEstoque {
                 System.out.println(escolhaErrada());
 
                 }
+            sc.close();
             }
         }
 
@@ -292,24 +312,33 @@ public class SistemaEstoque {
                 System.out.println(escolhaErrada());
 
             }
+        sc.close();
         }
     }
     static String lerTexto(){
         Scanner sc = new Scanner(System.in);
-        // nesse metodo é menor por nao ter conversão
+        
         while (true) {
             
             try {
                 
-                String entrada = sc.nextLine();
+                String entrada = sc.nextLine().trim();
+                //verifica se a entrada não e vazia
+                if (entrada != null) {
+                   return entrada;  
+                } else {
+                    System.out.println("entrada vazia, tenta novamente");
 
-                return entrada;
+                }
+                
             } catch (Exception e) {
                 System.out.println(escolhaErrada());
             }
+        sc.close();
         }
     }    
 
+    // Cadastrar veículo (RF1)
     public static String cadastrarVeiculo(String placa, String modelo, String tipo, Double cabacidadeMax, Double consumoKML){
         if (qtdVeiculos >= MAX_VEICULOS) {
             return "Não ha espaco na frota";
@@ -335,18 +364,19 @@ public class SistemaEstoque {
                 bw.newLine();
 
                 //escreve toda a informacao que esta no arreys, reescrevendo
-                for(int a = 0; a <= qtdVeiculos; a ++) {
-                    bw.write(placas[a] +";"+ modelos[a] +";"+ tiposVeiculo[a] +";"+ capacidadesKg[a] +";"+ consumosKmL[a]);
-        
+                for(int a = 0; a < qtdVeiculos; a ++) {
+                    bw.write(placas[a] +";"+ modelos[a] +";"+ tiposVeiculo[a] +";"+ capacidadesKg[a] +";"+ consumosKmL[a] +";"+ situacoesVeiculo[a]);
+                    bw.newLine();
+
                 } 
-            }catch (Exception e) {
-                // TODO: handle exception
+            }catch (IOException | NumberFormatException e) {
+                System.out.println("erro de escrever no arquivo: veiculos.txt");
                 } 
             return "\nVeículo cadastrado com sucesso!";  
         }
        
     }
-    
+    //listar veiculos (RF2)
     public static void listarVeiculos(){
         try (BufferedReader br = new BufferedReader(new FileReader("veiculos.txt"))){
             String linha;
@@ -354,13 +384,14 @@ public class SistemaEstoque {
                 System.out.println(linha);
             }
             
-        } catch (Exception e) {
-            // TODO: handle exception
+        } catch (IOException e) {
+                System.out.println("erro em ler arquivo: veiculos.txt");
         }
     }
     public static String escolhaErrada(){
         return "\nOpção invalida, Tenta novamente"; //mensagem basica de erro
     }
+    //cadastra motorista RF4
     public static String cadastrarMotorista(int codigo, String nome, int cnh){
         if (qtdMotoristas >= MAX_MOTORISTAS ) {
             return "Não ha espaco na empresa";
@@ -376,7 +407,7 @@ public class SistemaEstoque {
                 situacoesMotoristas[qtdMotoristas] = 1;
             
                 qtdMotoristas++;
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter("motoristas.txt"))){
                 //escrever o cabecario
                 bw.write(informacoesMotorista);
                 // mudar de linha 
@@ -391,12 +422,15 @@ public class SistemaEstoque {
                 }    
             } 
             
-            catch (Exception e) {
-                // TODO: handle exception
+            catch (IOException | NumberFormatException e) {
+                System.out.println("erro de escrita do arquivo: veiculos.txt");
                 
                 }
             return "\nMotorista cadastrado com sucesso!";
         }
         
+    }
+    static void cadastrarEntrega(){
+
     }
 }
