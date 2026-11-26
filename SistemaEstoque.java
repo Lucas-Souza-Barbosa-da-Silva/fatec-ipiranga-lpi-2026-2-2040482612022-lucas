@@ -2,6 +2,7 @@ import java.util.Scanner;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.DrbgParameters.Capability;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
@@ -70,8 +71,9 @@ public class SistemaEstoque {
         carregarDados();
 
         int opcao = 0;
+        Boolean escolhaErrada = false;
 
-        while (opcao != 0) {
+        do {
             System.out.println("\n##### Sistema de Estoque #####");
             System.out.println("( 1 ) Cadastrar Veiculo");
             System.out.println("( 2 ) Listar Veiculos");
@@ -95,27 +97,53 @@ public class SistemaEstoque {
                     break;
                     
                 case 1:
+                    String placa, modelo, tipos;
+                    double capacidadesKg = 0, consumosKml = 0;
+
                     System.out.println("##### qual a placa do veiculo ######");
                     System.out.print("coloque no seguinte formato (FFF0F00): ");
-                    String placa = sc.nextLine();
-                    
+                    placa = sc.nextLine();
+                   
                     System.out.println("\n##### Qual o modelo quer cadastrar #####");
                     System.out.println("( 1 ) Fiorino, tem menos capacidade sendo mais economico na gasolina");
                     System.out.println("( 2 ) Delivery, tem mais capacidade sendo mais gastao na gasolina");
-                    String modelo = sc.nextLine();
+                    modelo = sc.nextLine();
                     
                     sc.nextLine(); // Limpa o buffer do scanner, nesse caso para não pegar o espaço
 
                     System.out.println("\n##### Qual o tipo do veiculo #####");
-                    String tipos = sc.nextLine();
+                    tipos = sc.nextLine();
                     
                     System.out.println("##### capacidade de carga ######");
                     System.out.print("coloca no seguinte formato (100): ");
-                    double capacidadesKg = sc.nextDouble();
+
+                    do {
+                       try {
+                            capacidadesKg = sc.nextDouble();
+
+                        } catch (Exception e) {
+                            escolhaErrada = true;
+                            System.out.print(escolhaErrada());
+                            // TODO: handle exception
+                        }
+             
+                    } while (escolhaErrada == true);  
 
                     System.out.println("##### consumo por km/h #####");
                     System.out.print("coloque no seguinte formato (100): ");
-                    Double consumosKml = sc.nextDouble();
+                    
+                    do {
+                       try {
+                            consumosKml = sc.nextDouble();
+
+                        } catch (Exception e) {
+                            escolhaErrada = true;
+                            System.out.print(escolhaErrada());
+                            // TODO: handle exception
+                        }
+             
+                    } while (escolhaErrada == true);   
+
 
                     sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
                     
@@ -135,6 +163,50 @@ public class SistemaEstoque {
                 case 3:
                     break;
                 case 4:
+                    String nomesMotoristas = "a", opcaoIntermedia, situacaoMotorista = "a";
+                    int categoriaCnh = 0;
+
+                    System.out.println("##### qual a o nome motorista ######");
+                    nomesMotoristas = sc.nextLine();
+                    
+                    System.out.println("\n##### Qual a Categoria do CNH #####");
+                    System.out.println("( 1 ) CNH B");
+                    System.out.println("( 2 ) CNH C");
+                    System.out.println("( 3 ) CNH D");
+
+                    do {
+                       try {
+                            opcaoIntermedia = sc.nextLine();
+                            categoriaCnh = Integer.parseInt(opcaoIntermedia);
+
+                        } catch (Exception e) {
+                            escolhaErrada = true;
+                            System.out.print(escolhaErrada());
+                            // TODO: handle exception
+                        }
+             
+                    } while (escolhaErrada == true);
+                                            
+                    sc.nextLine(); // Limpa o buffer do scanner, nesse caso para não pegar o espaço
+
+                    System.out.println("\n##### Situacao do motorista #####");
+                    do {
+                       try {
+                            situacaoMotorista = sc.nextLine();
+
+                        } catch (Exception e) {
+                            escolhaErrada = true;
+                            System.out.print(escolhaErrada());
+                            // TODO: handle exception
+                        }
+             
+                    } while (escolhaErrada == true);                    
+
+                    sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
+                    
+                    //salva atraves do metodo
+                    cadastrarMotorista(categoriaCnh, nomesMotoristas, categoriaCnh, situacaoMotorista);
+
                     break;
                 case 5:
                     break;
@@ -144,12 +216,11 @@ public class SistemaEstoque {
                     break;
 
                 default:
-                    System.out.println("Opção inválida!");
-                    System.out.println("Tenta outra opção.");
+                    System.out.println(escolhaErrada());
 
                     break;
             }
-        }
+        }while (opcao != 0);
         
         sc.close();
     }
@@ -220,21 +291,28 @@ public class SistemaEstoque {
 
                 qtdEntregas++;
             }
-
         } catch (Exception e) {
             // TODO: handle exception
         }
-    
+        
     }
-    public static void cadastrarVeiculo(String placa, String Modelo, String Tipo, Double CabacidadeMax, Double ConsumoKML){
+    public static String cadastrarVeiculo(String placa, String modelo, String tipo, Double cabacidadeMax, Double consumoKML){
         String situcaoVeiculo = "Disponivel";
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
+        if (qtdVeiculos <= MAX_VEICULOS) {
+            return "Não ha espaco na frota";
             
-        } catch (Exception e) {
-            // TODO: handle exception
+        } else {
+            for(int a = 0; a <= qtdVeiculos; a ++) {
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
+                    bw.write(placas[a] +";"+ modelos[a] +";"+ tiposVeiculo[a] +";"+ capacidadesKg[a] +";"+ consumosKmL[a]);
+                
+                } catch (Exception e) {
+                // TODO: handle exception
+                } 
+            }
+            return "\nVeículo cadastrado com sucesso!";  
         }
-
+       
     }
     
     public static void listarVeiculos(){
@@ -248,5 +326,24 @@ public class SistemaEstoque {
             // TODO: handle exception
         }
     }
-
+    public static String escolhaErrada(){
+        return "\nOpção invalida, Tenta novamente"; //mensagem basica de erro
+    }
+    public static String cadastrarMotorista(int codigo, String nome, int cnh, String Situacao){
+        if (qtdMotoristas <= MAX_MOTORISTAS ) {
+            return "Não ha espaco na empresa";
+        
+        } else {
+            for(int a = 0; a <= qtdMotoristas; a ++) {
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
+                    bw.write(codigosMotorista[a] +";"+ nomesMotoristas[a] +";"+ categoriasCnh[a] +";"+ situacoesMotoristas[a]);
+                
+                } catch (Exception e) {
+                // TODO: handle exception
+                } 
+            }
+            return "\nMotorista cadastrado com sucesso!";
+        }
+        
+    }
 }
