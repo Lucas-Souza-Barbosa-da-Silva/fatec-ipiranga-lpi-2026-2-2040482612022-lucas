@@ -6,12 +6,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
 public class SistemaEstoque {
-    //definindo o tamanho maximo de motoristas que a empresa tem
+    // definindo o tamanho maximo de motoristas que a empresa tem
         static final int MAX_MOTORISTAS = 30;
-        
+        // cabecario do motoristas.txt
         static String informacoesMotorista = "Codigo;Nome;Cnh;Situacao";
-        
-        //arrays para os motoristas
+        // arrays para os motoristas
         static int[] codigosMotorista = new int[MAX_MOTORISTAS];
 
         static String[] nomesMotoristas = new String[MAX_MOTORISTAS];
@@ -20,10 +19,9 @@ public class SistemaEstoque {
         static int[] situacoesMotoristas = new int[MAX_MOTORISTAS];
 
         static int qtdMotoristas = 0; //qtd = Quantidade
-
         // definindo o tamanho maximo da frota da empresa
         static final int MAX_VEICULOS = 20;
-        
+        // cabecario do veiculos.txt
         static String informacoesVeiculo = "Placa;Modelo;Tipo;Capacidade_KG;Consumo_KML;Situacao";
         //arrays para os veiculos
         static String[] placas = new String[MAX_VEICULOS];
@@ -41,9 +39,8 @@ public class SistemaEstoque {
 
         //defindo o tamanho maximo de entregas 
         static final int MAX_ENTREGAS = 300;
-        
+        // cabecario do entregas.txt
         static String informacoesEntregas = "Codigo;Destino;Peso_KG;Distancia_KM;Placa;Codigo_Motorista;Dia;Situacao";
-        
         //arrays para as entregas
         static int[] codigosEntregas = new int[MAX_ENTREGAS];
 
@@ -61,20 +58,20 @@ public class SistemaEstoque {
 
         static int[][] entregasVeiculoDia = new int[MAX_VEICULOS][6];
 
-
         static int qtdEntregas = 0; //qtd = Quantidade 
 
     public static void main(String[] args) {
         //
         carregarDados();
-
+        boolean verificador = false;
         int opcao = 0;
+        String resultado;
 
         do {
             System.out.println("\n##### Sistema de Estoque #####");
             System.out.println("( 1 ) Cadastrar Veiculo");
             System.out.println("( 2 ) Listar Veiculos");
-            System.out.println("( 3 ) Alterar Situacao" );
+            System.out.println("( 3 ) Alterar Situacao Veiculos" );
             System.out.println("( 4 ) Cadastrar motorista");
             System.out.println("( 5 ) Listar Motoristas");
             System.out.println("( 6 ) Cadastrar Entrega");
@@ -84,24 +81,19 @@ public class SistemaEstoque {
             System.out.println("( 10 ) Listar entrega");
             System.out.println("( 11 ) Relatório de veiculo e dia");
             System.out.println("( 12 ) Relatório de combustível");
-
-
-
             System.out.println("( 0 ) Sair");
 
-            
             System.out.print("Escolha uma opção: ");
             
             opcao = lerInteiro();
             
             switch (opcao) {
-                case 0:
+                case 0:// sair do sistema
                     System.out.println("Saindo do sistema...");
             
                     break;
-                    
-                case 1:
-                    String placa, modelo, tipos;
+                case 1:// cadastrar veiculo
+                    String placa, modelo;
                     double capacidadesKg = 0, consumosKml = 0;
                     System.out.println("##### qual a placa do veiculo ######");
                     System.out.print("coloque no seguinte formato (FFF0F00): ");
@@ -118,55 +110,127 @@ public class SistemaEstoque {
                     System.out.println("\n##### Qual o modelo quer cadastrar #####");
                     modelo = lerTexto();
                     
-                    
-                    System.out.println("\n##### Qual o tipo do veiculo #####");
-                    System.out.println("( 1 ) Utilitário");
-                    System.out.println("( 2 ) Caminhão leve");
-                    do{
-                        tipos = lerTexto();
-                    }while (modelo == "1" || modelo == "2");
+                    int tipo;
 
+                        do {
+                    System.out.println("1 - Utilitario");
+                    System.out.println("2 - Caminhao leve");
+
+                    tipo = lerInteiro();
+
+                    if (tipo < 1 || tipo > 2) {
+                         System.out.println("Tipo invalido.");
+                    }
+
+                } while (tipo < 1 || tipo > 2);
                     System.out.println("##### capacidade de carga ######");
-                    System.out.print("coloca no seguinte formato (100): ");
+                    //limitar a carga para cada tipo de veiculo
+                    if(tipo == 1){ 
+                        while (verificador == false) {
+                            System.out.println("capacidade permitida e 100 a 1500 kg");
+                            capacidadesKg = lerDecimal(); 
+                            if (capacidadesKg < 100 || capacidadesKg > 1500){
+                                System.out.println("erro de capacidade, coloca a carga permitida");
+                            }
+                            else{
+                                verificador = true;
+                            }
+                        }
+                        
+                    }
+                    else{  
+                        while (verificador == false) {
+                            System.out.println("capacidade permitida e 100 a 6000 kg");
+                            capacidadesKg = lerDecimal();
+                            if (capacidadesKg < 100 || capacidadesKg > 6000){
+                                System.out.println("erro de capacidade, coloca a carga permitida");
 
-                    capacidadesKg = lerDecimal();  
+                            }
+                            else{
+                                verificador = true;
+                            }
+                        }
+                    }   
+
+                    verificador = false;
 
                     System.out.println("##### consumo por km/h #####");
                     System.out.print("coloque no seguinte formato (100): ");
                     
                     consumosKml = lerDecimal();
                     
-                    //salva atraves do metodo
-                    cadastrarVeiculo(placa,modelo,tipos,capacidadesKg,consumosKml);                  
+                    //salva o metodo
+                    resultado = cadastrarVeiculo(placa,modelo,tipo,capacidadesKg,consumosKml);
 
-                    if (salvarVeiculos() == true) {
-                        System.out.println("foi salvo com sucesso");
+                    if (resultado.equals("processo concluido")) {
+                        //salva e exibe o resultado
+                        System.out.println(salvarVeiculos());
+
                     } else {
-                        System.out.println("falha ao salvar");   
+                        System.out.println(resultado);
                     }
+                    System.out.println(salvarVeiculos());
                     break;
 
-                case 2:
+                case 2:// listar veiculo
                     System.out.println("\n##### Frota Cadastrada #####");
                          
                     listarVeiculos();
                     
                     break;
 
-                case 3:
+                case 3:// alterar situacao veiculo
+                    int escolhaVeiculo = 0;
+                    // mostra todos os veiculos da empresa;
+                    listarVeiculos();
+
+                    System.out.print("coloca a placa do veiculo voce quer alterar: ");
+                    do{
+                        placa = lerTexto();
+                    
+                        if(buscarIndiceVeiculo(placa) == -1){
+                            System.out.print("colocar um codigo que existe: ");
+                            
+                        }
+                        else{  
+                            
+                        }
+                    }while (buscarIndiceVeiculo(placa) == -1);
+                    
+                    escolhaVeiculo = buscarIndiceVeiculo(placa);
+                    
+                    if(situacoesVeiculo[escolhaVeiculo] == 1){
+                        
+                        System.out.println("Tem certeza de mudar: disponivel para manutencao");
+                    }else if(situacoesVeiculo[escolhaVeiculo] == 3){
+                        System.out.println("Tem certeza de mudar: manutencao para disponivel");
+                        opcao = lerInteiro();
+
+                        if(opcao == 1){
+                        situacoesVeiculo[escolhaVeiculo] = 3;
+                        salvarVeiculos();
+                        }else{
+                        situacoesVeiculo[escolhaVeiculo] = 1;
+                        salvarVeiculos();
+                        }
+                        
+                    }else{
+                        System.out.println("Não pode alterar veiculo em rota");
+                    }
+
                     break;
-                case 4:
+                case 4:// cadastro motorista
                     String nome;
                     int codigo = 0, cnh = 0;
 
                     System.out.println("##### Qual e o codigo do motorista ######");
                     do{
                         codigo = lerInteiro();
-                        if (codigo < 1 || codigo > 999) {
-                          System.out.println("coloca um codigo valido ex:(1)"); 
+                        if (codigo < 1 || codigo > 999 || buscarIndiceMotorista(codigo) == -1) {
+                          System.out.println("coloca um codigo valido ex:(1) e nao repitido"); 
 
                         } else {}
-                    }while (codigo < 1 || codigo > 999);
+                    }while (codigo < 1 || codigo > 999 || buscarIndiceMotorista(codigo) != -1);
 
 
 
@@ -188,49 +252,50 @@ public class SistemaEstoque {
                                                           
                     //sc.nextLine(); // Limpa o buffer do scanner, porque esta trocando a entrada de numero para String
                     
-                    //salva atraves do metodo
-                    cadastrarMotorista(codigo, nome, cnh);
+                    //cadastra no array
+                    resultado = cadastrarMotorista(codigo, nome, cnh);
 
-                    salvarMotoristas();
+                    if (resultado.equals("processo concluido")) {
+                        //salva e exibe o resultado
+                        System.out.println(salvarMotoristas());
 
-                    if (salvarMotoristas() == true) {
-                        System.out.println("foi salvo com sucesso");
                     } else {
-                        System.out.println("falha ao salvar");   
+                        System.out.println(resultado);
                     }
+                    
                     break;
-                case 5:
+                case 5: // lista dos Motoristas
                     System.out.println("\n##### Lista dos Motoristas #####");
                          
                     listarMotoristas();
                     
                     break;
-                case 6:
+                case 6:// cadastrar entrega
                     break;
-                case 7:
+                case 7:// desparchar entrega
                     break;
-                case 8:
+                case 8:// concluir entrega
                     break;
-                case 9:
+                case 9:// cancelar entrega
                     break;
-                case 10:
+                case 10:// lista de entregas
                     System.out.println("\n##### Lista de Entregas #####");
                          
                     listarEntregas();
                     
                     break;
-                case 11:
+                case 11:// relatorio de veiculo e dia
                     break;
-                case 12:
+                case 12:// relatorio de combustivel
                     break;
-                default:
+                default:// colocou outra coisa, do que as opcoes
                     System.out.println(escolhaErrada());
 
                     break;
             }
         }while (opcao != 0);
-        
     }
+    // ler todos arquivos e carrega dentro dos arrays
     public static void carregarDados(){
         String linha;
         
@@ -302,8 +367,9 @@ public class SistemaEstoque {
                 pesosKg[qtdEntregas] = Double.parseDouble(bloco[2]);
                 distanciasKm[qtdEntregas] = Double.parseDouble(bloco[3]);
             
-                entVeiculo[qtdEntregas] = Integer.parseInt(bloco[4]);
-                entMotorista[qtdEntregas] = Integer.parseInt(bloco[5]);
+                entVeiculo[qtdEntregas] = buscarIndiceVeiculo(bloco[4]);
+
+                entMotorista[qtdEntregas] = buscarIndiceMotorista(Integer.parseInt(bloco[5]));
                 entDia[qtdEntregas] = Integer.parseInt(bloco[6]);
                 situacoesEntrega[qtdEntregas] = Integer.parseInt(bloco[7]);
 
@@ -314,7 +380,8 @@ public class SistemaEstoque {
         }
         
     }
-    static int lerInteiro(){
+    // ler int do sistema
+    public static int lerInteiro(){
         Scanner sc = new Scanner(System.in);
         
         int valor;
@@ -335,8 +402,8 @@ public class SistemaEstoque {
             sc.close();
             }
         }
-
-    static double lerDecimal() {
+    // ler double do sistema
+    public static double lerDecimal() {
         Scanner sc = new Scanner(System.in);
 
         double valor;
@@ -360,7 +427,8 @@ public class SistemaEstoque {
         sc.close();
         }
     }
-    static String lerTexto(){
+    // ler String do sistema
+    public static String lerTexto(){
         Scanner sc = new Scanner(System.in);
         
         while (true) {
@@ -369,7 +437,7 @@ public class SistemaEstoque {
                 
                 String entrada = sc.nextLine().trim();
                 //verifica se a entrada não e vazia
-                if (entrada != null) {
+                if (!entrada.isEmpty()) {
                    return entrada;  
                 } else {
                     System.out.println("entrada vazia, tenta novamente");
@@ -382,9 +450,8 @@ public class SistemaEstoque {
         sc.close();
         }
     }    
-
     // Cadastrar veículo (RF1)
-    public static String cadastrarVeiculo(String placa, String modelo, String tipo, Double cabacidadeMax, Double consumoKML){
+    public static String cadastrarVeiculo(String placa, String modelo, int tipo, Double cabacidadeMax, Double consumoKML){
         if (qtdVeiculos >= MAX_VEICULOS) {
             return "Não ha espaco na frota";
             
@@ -393,7 +460,7 @@ public class SistemaEstoque {
             placas[qtdVeiculos] = placa;
             modelos[qtdVeiculos] = modelo;
 
-            tiposVeiculo[qtdVeiculos] = Integer.parseInt(tipo);
+            tiposVeiculo[qtdVeiculos] = tipo;
 
             capacidadesKg[qtdVeiculos] = cabacidadeMax;
             consumosKmL[qtdVeiculos] = consumoKML;
@@ -401,11 +468,11 @@ public class SistemaEstoque {
             situacoesVeiculo[qtdVeiculos] = 1;
 
             qtdVeiculos++;
-            return "processo comcluido";
+            return "processo concluido";
         }
        
     }
-    //listar veiculos (RF2)
+    //  listar veiculos (RF2)
     public static void listarVeiculos() {
         if (qtdVeiculos == 0) {
         System.out.println("Nenhum veiculo cadastrado.");
@@ -417,12 +484,23 @@ public class SistemaEstoque {
         
         System.out.println(placas[i] +";"+ modelos[i] +";"+ tiposVeiculo[i] +";"+ capacidadesKg[i] +";"+ consumosKmL[i] +";"+ situacoesVeiculo[i]);
         
+        }
     }
-}
+    // Quando escolhe uma opcao invalida
     public static String escolhaErrada(){
         return "\nOpção invalida, Tenta novamente"; //mensagem basica de erro
     }
-    //cadastra motorista RF4
+    //  alterar situacao (RF3)
+    public static int alterarSituacaoVeiculo(String placa){
+        for(int i = 0; i < qtdVeiculos; i++){
+            if(placas[i].equalsIgnoreCase(placa)){
+                return i; 
+            }
+            
+        }
+        return -1;
+    }
+    //  cadastra motorista (RF4)
     public static String cadastrarMotorista(int codigo, String nome, int cnh){
         if (qtdMotoristas >= MAX_MOTORISTAS ) {
             return "Não ha espaco na empresa";
@@ -438,12 +516,13 @@ public class SistemaEstoque {
                 situacoesMotoristas[qtdMotoristas] = 1;
             
                 qtdMotoristas++;
-            return "processo comcluido";
+            return "processo concluido";
         }
 
     }
+    // listar motoristas (RF5)
     public static void listarMotoristas(){
-        if (qtdVeiculos == 0) {
+        if (qtdMotoristas == 0) {
             System.out.println("Nenhum motorista cadastrado.");
             return;
         }
@@ -456,13 +535,15 @@ public class SistemaEstoque {
         }
 
     }
+    // cadastrar entrega (RF6)
     static void cadastrarEntrega(){
 
     }
+    // listar entrega (RF7)
     public static void listarEntregas(){
         
     }
-    public static boolean salvarVeiculos(){
+    public static String salvarVeiculos(){
             boolean deuCerto = false;
         // o try catch é caso não consiga gravar o arquivo
             try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
@@ -478,15 +559,13 @@ public class SistemaEstoque {
 
                 } 
             }catch (IOException | NumberFormatException e) {
-                System.out.println("erro de escrever no arquivo: veiculos.txt");
-                return deuCerto;
-    
-            } 
-            deuCerto = true;
-            return deuCerto;
+                return "erro de escrever no arquivo: veiculos.txt";
+
+            }       
+            return "foi salvo com sucesso";
+            
     }
-    public static Boolean salvarMotoristas(){
-        boolean deuCerto = false;
+    public static String salvarMotoristas(){
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("motoristas.txt"))){
                 //escrever o cabecario
                 bw.write(informacoesMotorista);
@@ -502,26 +581,28 @@ public class SistemaEstoque {
                 }    
             } 
             catch (IOException | NumberFormatException e) {
-                System.out.println("erro de escrita do arquivo: motoristas.txt");
-                return deuCerto;    
+                return "erro de escrita do arquivo: motoristas.txt";
             }            
-            deuCerto = true;
-            return deuCerto;
+            return "salvo com exito";
     }
     public static int buscarIndiceVeiculo(String placa) {
-    for (int i = 0; i < qtdVeiculos; i++) {
-        if (placas[i] != null && placas[i].equalsIgnoreCase(placa)) {
-            return i;
-        }
-    }
-    return -1;
-    }
-    public static int buscarIndiceMotorista(int codigo){
-        for(int i = 0; i < qtdMotoristas; i++){
-            if (codigosMotorista[i] != 0){
+        
+        for (int i = 0; i < qtdVeiculos; i++) {
+            
+            if (placas[i] != null && placas[i].equalsIgnoreCase(placa)) {
                 return i;
             }
         }
-    return -1;
+        return -1;
     }
+    public static int buscarIndiceMotorista(int codigo) {
+
+        for (int i = 0; i < qtdMotoristas; i++) {
+
+            if (codigosMotorista[i] == codigo) {
+                return i;
+            }
+        }   
+    return -1;
+}
 }
