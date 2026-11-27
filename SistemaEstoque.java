@@ -85,7 +85,6 @@ public class SistemaEstoque {
             System.out.println("( 12 ) Relatório de combustível");
             System.out.println("( 13 ) Desempenho dos motoristas");
             System.out.println("( 14 ) Exportar relatório semanal");
-            System.out.println("( 15 ) Sair");
             System.out.println("( 0 ) Sair");
             System.out.println("\n###############################");
 
@@ -377,30 +376,6 @@ public class SistemaEstoque {
 
                     escolhaVeiculo = buscarIndiceVeiculo(placa);
 
-                    System.out.println("\n##### qual motorista vai utilizar? #####");
-
-                    listarMotoristas();
-
-                    do {
-                        codigo = lerInteiro();
-
-                        if (buscarIndiceMotorista(codigo) == -1) {
-                            System.out.print("colocar um codigo que existe ou sair (-1): ");
-                            opcao = lerInteiro();
-
-                            if(opcao == -1){
-                                break;
-                            }
-                        } else {
-
-                        }
-
-                    } while (buscarIndiceMotorista(codigo) == -1);
-
-                    if(opcao == -1){
-                        break;
-                    }
-
                     escolhaMotorista = -1;
                     boolean motoristaValido = false;
                     boolean cancelarDespacho = false;
@@ -514,7 +489,7 @@ public class SistemaEstoque {
 
                         } else if (situacoesEntrega[buscarIndiceEntrega(codigo)] != 1) {
                             // caso coloque um veiculo não usado ou estando em manutencao
-                            System.out.println("So pode remover entrega em andamento");
+                            System.out.println("Não pode remover entrega em andamento");
                         }
                     } while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] != 1);
 
@@ -554,10 +529,7 @@ public class SistemaEstoque {
                 case 14:// Exportar relatório semanal
                     exportarSemanal();
                     break;
-                case 15:// Reconstruir Derivados
-                    
-                    break;
-                case 16://gravar os dados
+
                 default:// colocou outra coisa, do que as opcoes
                     System.out.println(escolhaErrada());
 

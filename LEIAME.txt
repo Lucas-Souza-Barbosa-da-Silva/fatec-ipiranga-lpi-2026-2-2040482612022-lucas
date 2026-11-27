@@ -1,0 +1,45 @@
+================================================================================
+SISTEMA DE GESTÃO DE FROTA E ENTREGAS - RÁPIDO LESTE ENTREGAS
+Projeto Prático - Linguagem de Programação I (2º Semestre / 2026)
+Fatec Ipiranga - Pastor Enéas Tognini | Curso: Análise e Desenvolvimento de Sistemas
+================================================================================
+
+1. AMBIENTE E VERSÃO DO JAVA UTILIZADA
+- Linguagem: Java (Procedural com métodos static, arrays paralelos e matrizes)
+- Versão do JDK utilizada: JDK 18 ou superior (codificação padrão UTF-8)
+- Bibliotecas externas: Nenhuma (utiliza apenas pacotes padrão java.io e java.util)
+
+2. ESTRUTURA DE PASTAS E LOCAL DOS ARQUIVOS DE DADOS
+Os arquivos de dados (.txt) e os relatórios exportados devem permanecer na pasta
+raiz do projeto (diretório de trabalho padrão durante a execução):
+
+LPI_Tema5_<NomeDaEquipe>/
+├── LEIAME.txt
+├── veiculos.txt           (arquivo de dados - frota de veículos)
+├── motoristas.txt         (arquivo de dados - cadastro de motoristas)
+├── entregas.txt           (arquivo de dados - registro e histórico de entregas)
+├── resumo_semanal.txt     (relatório consolidado gerado pela opção 14)
+├── SistemaEstoque_4.java
+│   
+└── Sistema de Gestão de Frota e Entregas.pdf (documentação)
+
+3. INSTRUÇÕES DE COMPILAÇÃO E EXECUÇÃO VIA TERMINAL
+Abra o terminal (Prompt de Comando, PowerShell ou Terminal Linux/macOS), navegue
+até a pasta raiz do projeto (onde estão os arquivos .txt) e execute os comandos:
+
+a) Para compilar o código-fonte:
+   javac SistemaEstoque.java
+
+b) Para executar o programa:
+   java -cp bin SistemaEstoque
+
+   (Ou, se compilado na pasta raiz:)
+   java SistemaEstoque_4
+
+4. OBSERVAÇÕES SOBRE A PERSISTÊNCIA
+- Na inicialização, o programa carrega automaticamente veiculos.txt, motoristas.txt
+  e entregas.txt nessa ordem, reconstruindo as matrizes semanais em memória.
+- Caso os arquivos ainda não existam (primeira execução), o sistema exibe um
+  aviso informativo e inicia normalmente com cadastros vazios.
+- Todas as operações de cadastro, alteração de situação, despacho, conclusão e
+  cancelamento gravam imediatamente as alterações nos arquivos correspondentes.
