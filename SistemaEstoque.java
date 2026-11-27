@@ -85,6 +85,7 @@ public class SistemaEstoque {
             System.out.println("( 12 ) Relatório de combustível");
             System.out.println("( 13 ) Desempenho dos motoristas");
             System.out.println("( 14 ) Exportar relatório semanal");
+            System.out.println("( 15 ) Sair");
             System.out.println("( 0 ) Sair");
             System.out.println("\n###############################");
 
@@ -384,28 +385,53 @@ public class SistemaEstoque {
                         codigo = lerInteiro();
 
                         if (buscarIndiceMotorista(codigo) == -1) {
-                            System.out.print("colocar um codigo que existe: ");
+                            System.out.print("colocar um codigo que existe ou sair (-1): ");
+                            opcao = lerInteiro();
 
+                            if(opcao == -1){
+                                break;
+                            }
                         } else {
 
                         }
 
                     } while (buscarIndiceMotorista(codigo) == -1);
 
-                    boolean motoristaValido = false;
+                    if(opcao == -1){
+                        break;
+                    }
 
-                    escolhaMotorista = buscarIndiceMotorista(codigo);
+                    escolhaMotorista = -1;
+                    boolean motoristaValido = false;
+                    boolean cancelarDespacho = false;
+
                     do {
+                        System.out.println("\n##### qual motorista vai utilizar? (ou -1 para cancelar) #####");
+                        listarMotoristas();
+                        codigo = lerInteiro();
+
+                        if (codigo == -1) {
+                            cancelarDespacho = true;
+                            break;
+                        }
+
+                        escolhaMotorista = buscarIndiceMotorista(codigo);
+
                         if (escolhaMotorista == -1) {
-                            System.out.println(escolhaErrada());
+                            System.out.println("Motorista nao encontrado.");
                         } else if (situacoesMotoristas[escolhaMotorista] != 1) {
-                            System.out.println("So pode escolher motorista disponive(1)");
+                            System.out.println("So pode escolher motorista disponivel (1).");
                         } else if (!podeConduzir(escolhaMotorista, escolhaVeiculo)) {
-                            System.out.println(escolhaErrada());
+                            System.out.println("CNH incompatível com o veiculo escolhido.");
                         } else {
                             motoristaValido = true;
                         }
-                    } while (motoristaValido == false);
+                    } while (!motoristaValido);
+
+                    if (cancelarDespacho || !motoristaValido) {
+                        System.out.println("Despacho cancelado.");
+                        break;
+                    }
                     System.out.println("\n##### qual dia da semana? #####");
                     System.out.println("(1) segunda | (2) terca | (3) quarta | (4) quinta | (5) sexta | (6) sabado");
 
@@ -419,7 +445,7 @@ public class SistemaEstoque {
 
                         }
 
-                    } while (dia > 6);
+                    } while (dia < 1 || dia > 6);
                     resultado = despacharEntrega(escolhaEstoque, escolhaVeiculo, escolhaMotorista, dia);
 
                     if (resultado.equals("processo concluido")) {
@@ -444,12 +470,12 @@ public class SistemaEstoque {
                         if (buscarIndiceEntrega(codigo) == -1) {
                             System.out.print("colocar um codigo que existe: ");
 
-                        } else if (situacoesEntrega[buscarIndiceEntrega(codigo)] != 1) {
+                        } else if (situacoesEntrega[buscarIndiceEntrega(codigo)] != 2) {
                             // caso coloque um veiculo não usado ou estando em manutencao
                             System.out.println("So pode alterar entrega em andamento (2)");
                         }
-                    } while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] != 1);
-
+                    } while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] != 2);
+                    // coloque 2 no segundo parametro do do-while por que so pode concluir se tiver em rota 
                     int indice = buscarIndiceEntrega(codigo);
 
                     System.out.print("digite (1) para SIM ou (2) para NAO: ");
@@ -525,9 +551,13 @@ public class SistemaEstoque {
                     relatorioMotoristas();
                     break;
 
-                case 14:// 
-                    // exportarSemanal();
+                case 14:// Exportar relatório semanal
+                    exportarSemanal();
                     break;
+                case 15:// Reconstruir Derivados
+                    
+                    break;
+                case 16://gravar os dados
                 default:// colocou outra coisa, do que as opcoes
                     System.out.println(escolhaErrada());
 
@@ -717,7 +747,7 @@ public class SistemaEstoque {
     // listar veiculos (RF2)
     public static void listarVeiculos() {
         if (qtdVeiculos == 0) {
-            System.out.println("Nenhum veiculo cadastrado.");
+            System.out.println("Nenhum veiculo cadastrado");
             return;
         }
         System.out.println(informacoesVeiculo);
@@ -770,7 +800,7 @@ public class SistemaEstoque {
     // listar motoristas (RF5)
     public static void listarMotoristas() {
         if (qtdMotoristas == 0) {
-            System.out.println("Nenhum motorista cadastrado.");
+            System.out.println("Nenhum motorista cadastrado");
             return;
         }
 
@@ -806,19 +836,16 @@ public class SistemaEstoque {
     // listar entrega (RF10)
     public static void listarEntregas() {
         if (qtdEntregas == 0) {
-            System.out.println("Nenhum motorista cadastrado.");
+            System.out.println("Nenhuma entrega cadastrada");
             return;
         }
 
         System.out.println(informacoesEntregas);
 
         for (int i = 0; i < qtdEntregas; i++) {
-            System.out.print(codigosEntregas[i] + ";" + destinos[i] + ";" + pesosKg[i] + ";" + distanciasKm[i]);
-
-            System.out.print(entVeiculo[i] + ";" + entMotorista[i] + ";" + entDia[i] + ";" + situacoesEntrega[i]);
-
+            System.out.println(codigosEntregas[i] + ";" + destinos[i] + ";" + pesosKg[i] + ";" + distanciasKm[i] + ";"
+                                + entVeiculo[i] + ";" + entMotorista[i] + ";" + entDia[i] + ";" + situacoesEntrega[i]);
         }
-
     }
 
     // salva de maneira permanente, as informacoes do array
@@ -921,11 +948,11 @@ public class SistemaEstoque {
 
     if(!r1.equals("foi salvo com sucesso") || !r2.equals("foi salvo com sucesso") || !r3.equals("foi salvo com sucesso")){
 
-        return "os salvamentos dos arquivos foram feito com exito";
+        return "os salvamentos dos arquivos de";
 
     }
 
-    return "Dados salvos com sucesso";
+    return "os salvamentos dos arquivos foram feito com exito";
 
     }
 
@@ -1016,63 +1043,244 @@ public class SistemaEstoque {
     }
 
     public static void relatorioCombustivel() {
-        double kmTotal = 0, custo = 0, litros = 0;
-        // esse dois for e para a matriz
         for (int v = 0; v < qtdVeiculos; v++) {
-            for (int d = 0; d < 6; d++) {// 6, porque representa os seis dias da matriz
+            double kmTotal = 0;
+            int totalEntregas = 0;
+            
+            for (int d = 0; d < 6; d++) {
                 kmTotal += kmVeiculoDia[v][d];
-                litros = kmTotal / consumosKmL[v];
-                custo = litros * PRECO_LITRO;
-
+                totalEntregas += entregasVeiculoDia[v][d];
             }
+
+            double litros = (consumosKmL[v] > 0) ? (kmTotal / consumosKmL[v]) : 0;
+            double custo = litros * PRECO_LITRO;
+
             System.out.println("\nVeiculo: " + placas[v]);
             System.out.println("KM rodados: " + kmTotal);
             System.out.println("Litros consumidos: " + litros);
             System.out.println("Custo: R$ " + custo);
-            
-            int totalEntregas = 0;
-            for (int d = 0; d < 6; d++) {
-                totalEntregas += entregasVeiculoDia[v][d];
-            }
+
             if (totalEntregas > 0) {
-
                 double custoPorEntrega = custo / totalEntregas;
+                System.out.println("Custo por entrega: R$ " + custoPorEntrega);
+            }
+        }
+    }
+    public static void relatorioMotoristas(){
+        int maiorQuantidade = 0;
+        int melhorMotorista = -1;
 
+    for (int m = 0; m < qtdMotoristas; m++) {
+        int quantidade = 0;
+        double kmTotal = 0;
+        double pesoTotal = 0;
+
+        for (int e = 0; e < qtdEntregas; e++) {
+            if (situacoesEntrega[e] == 3 && entMotorista[e] == m) {
+                quantidade++;
+                kmTotal += distanciasKm[e];
+                pesoTotal += pesosKg[e];
             }
         }
 
+        System.out.println("\nMotorista: " + nomesMotoristas[m]);
+        System.out.println("Entregas concluidas: " + quantidade);
+        System.out.println("KM percorridos: " + kmTotal);
+        System.out.println("Peso transportado: " + pesoTotal);
+
+        if (quantidade > maiorQuantidade) {
+            maiorQuantidade = quantidade;
+            melhorMotorista = m;
+        }
     }
-    public static void relatorioMotoristas(){
-        for(int m = 0; m < qtdMotoristas; m++){
-            int quantidade = 0;
-            double kmTotal = 0;
-            double pesoTotal = 0;
 
-            for(int e = 0; e < qtdEntregas; e++){
-                if(situacoesEntrega[e] == 3 &&
-                    entMotorista[e] == m){
-
-                    quantidade++;
-
-                    kmTotal += distanciasKm[e];
-
-                    pesoTotal += pesosKg[e];
-
-                }
-
-            }
-
+    if (melhorMotorista != -1 && maiorQuantidade > 0) {
+        System.out.println("\nDestaque: " + nomesMotoristas[melhorMotorista] + " (" + maiorQuantidade + " entregas)");
         }
     }
     public static void exportarSemanal(){
-    try(BufferedWriter bw = new BufferedWriter(new FileWriter("resumo_semanal.txt"))) {
-        bw.write("Rapido Leste Entregas: Relatorio Semanal");
-        bw.newLine();
-        
-        
-    } catch (IOException e) {
-        System.out.println("erro em exportar arquivo resumo_semanal.txt");
-    }
-}
+        // dias da semana do sistema (1 a 6)
+        String[] dias = { "Seg", "Ter", "Qua", "Qui", "Sex", "Sab" };
 
+        // o try catch é caso não consiga gravar o arquivo
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("resumo_semanal.txt"))) {
+            bw.write("Rapido Leste Entregas: Relatorio Semanal");
+            bw.newLine();
+
+            int pendentes = 0, emRota = 0, concluidas = 0, canceladas = 0;
+
+            for (int i = 0; i < qtdEntregas; i++) {
+                if (situacoesEntrega[i] == 1) {
+                    pendentes++;
+                } else if (situacoesEntrega[i] == 2) {
+                    emRota++;
+                } else if (situacoesEntrega[i] == 3) {
+                    concluidas++;
+                } else if (situacoesEntrega[i] == 4) {
+                    canceladas++;
+                }
+            }
+
+            bw.newLine();
+            bw.write("##### Situacoes das Entregas #####");
+            bw.newLine();
+            bw.write("Total: " + qtdEntregas + " ; Pendentes: " + pendentes + " ; Em rota: " + emRota
+                    + " ; Concluidas: " + concluidas + " ; Canceladas: " + canceladas);
+            bw.newLine();
+
+            bw.newLine();
+            bw.write("##### Relatorio de Veiculo e Dia #####");
+            bw.newLine();
+
+            if (qtdVeiculos == 0) {
+                bw.write("Nenhum veiculo cadastrado");
+                bw.newLine();
+            } else {
+                bw.write("Placa;Modelo;Entregas;Km_Total");
+                bw.newLine();
+
+                int[] entDiaTotal = new int[6];
+                double[] kmDiaTotal = new double[6];
+                int indiceMaiorKm = 0;
+                double maiorKm = 0;
+
+                for (int v = 0; v < qtdVeiculos; v++) {
+                    int somaEnt = 0;
+                    double somaKm = 0;
+
+                    // 6, porque representa os seis dias da matriz
+                    for (int d = 0; d < 6; d++) {
+                        somaEnt += entregasVeiculoDia[v][d];
+                        somaKm += kmVeiculoDia[v][d];
+                        entDiaTotal[d] += entregasVeiculoDia[v][d];
+                        kmDiaTotal[d] += kmVeiculoDia[v][d];
+                    }
+
+                    if (somaKm > maiorKm) {
+                        maiorKm = somaKm;
+                        indiceMaiorKm = v;
+                    }
+
+                    bw.write(placas[v] + ";" + modelos[v] + ";" + somaEnt + ";" + somaKm);
+                    bw.newLine();
+                }
+
+                bw.newLine();
+                bw.write("Totais por dia:");
+                bw.newLine();
+
+                int indiceMaisEntregas = 0;
+                for (int d = 0; d < 6; d++) {
+                    bw.write(dias[d] + " ; Entregas: " + entDiaTotal[d] + " ; Km: " + kmDiaTotal[d]);
+                    bw.newLine();
+
+                    if (entDiaTotal[d] > entDiaTotal[indiceMaisEntregas]) {
+                        indiceMaisEntregas = d;
+                    }
+                }
+
+                if (maiorKm > 0) {
+                    bw.write("Maior km: " + placas[indiceMaiorKm] + " (" + maiorKm + " km)");
+                    bw.newLine();
+                }
+                if (entDiaTotal[indiceMaisEntregas] > 0) {
+                    bw.write("Dia com mais entregas: " + dias[indiceMaisEntregas] + " ("
+                            + entDiaTotal[indiceMaisEntregas] + ")");
+                    bw.newLine();
+                }
+            }
+
+            bw.newLine();
+            bw.write("##### Relatorio de Combustivel #####");
+            bw.newLine();
+
+            if (qtdVeiculos == 0) {
+                bw.write("Nenhum veiculo cadastrado");
+                bw.newLine();
+            } else {
+                bw.write("Placa;Km_Total;Litros;Custo;Custo_Por_Entrega");
+                bw.newLine();
+
+                double custoTotal = 0;
+
+                for (int v = 0; v < qtdVeiculos; v++) {
+                    int somaEnt = 0;
+                    double somaKm = 0;
+
+                    for (int d = 0; d < 6; d++) {
+                        somaEnt += entregasVeiculoDia[v][d];
+                        somaKm += kmVeiculoDia[v][d];
+                    }
+
+                    double litros = 0;
+                    if (consumosKmL[v] > 0) {
+                        litros = somaKm / consumosKmL[v];
+                    }
+
+                    double custo = litros * PRECO_LITRO;
+
+                    double custoPorEntrega = 0;
+                    if (somaEnt > 0) {
+                        custoPorEntrega = custo / somaEnt;
+                    }
+
+                    custoTotal += custo;
+
+                    bw.write(placas[v] + ";" + somaKm + ";" + litros + ";" + custo + ";" + custoPorEntrega);
+                    bw.newLine();
+                }
+
+                bw.write("Custo total da frota: " + custoTotal);
+                bw.newLine();
+            }
+
+            bw.newLine();
+            bw.write("##### Desempenho dos Motoristas #####");
+            bw.newLine();
+
+            if (qtdMotoristas == 0) {
+                bw.write("Nenhum motorista cadastrado");
+                bw.newLine();
+            } else {
+                bw.write("Codigo;Nome;Entregas_Concluidas;Km_Total;Peso_Total");
+                bw.newLine();
+
+                int indiceDestaque = 0;
+                int maiorEntregas = 0;
+
+                for (int m = 0; m < qtdMotoristas; m++) {
+                    int entConcluidas = 0;
+                    double kmMot = 0;
+                    double pesoMot = 0;
+
+                    for (int e = 0; e < qtdEntregas; e++) {
+                        if (situacoesEntrega[e] == 3 && entMotorista[e] == m) {
+                            entConcluidas++;
+                            kmMot += distanciasKm[e];
+                            pesoMot += pesosKg[e];
+                        }
+                    }
+
+                    if (entConcluidas > maiorEntregas) {
+                        maiorEntregas = entConcluidas;
+                        indiceDestaque = m;
+                    }
+
+                    bw.write(codigosMotorista[m] + ";" + nomesMotoristas[m] + ";" + entConcluidas + ";" + kmMot + ";"
+                            + pesoMot);
+                    bw.newLine();
+                }
+
+                if (maiorEntregas > 0) {
+                    bw.write("Destaque: " + nomesMotoristas[indiceDestaque] + " (" + maiorEntregas + " entregas)");
+                    bw.newLine();
+                }
+            }
+
+            System.out.println("foi salvo com sucesso");
+
+        } catch (IOException e) {
+            System.out.println("erro em exportar arquivo resumo_semanal.txt");
+        }
+    }
 }
