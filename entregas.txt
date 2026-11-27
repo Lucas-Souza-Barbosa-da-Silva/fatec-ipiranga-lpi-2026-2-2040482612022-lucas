@@ -1,0 +1,2 @@
+Codigo;Destino;Peso_KG;Distancia_KM;Placa;Codigo_Motorista;Dia;Situacao
+1;rua Vergueiro;1.0;54.0;FFF0F00;32;1;4
