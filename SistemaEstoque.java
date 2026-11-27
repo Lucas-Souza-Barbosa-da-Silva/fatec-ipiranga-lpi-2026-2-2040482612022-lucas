@@ -64,7 +64,6 @@ public class SistemaEstoque {
     public static void main(String[] args) {
         //
         carregarDados();
-        boolean verificador = false;
         int opcao = 0;
         String resultado;
 
@@ -92,11 +91,12 @@ public class SistemaEstoque {
             switch (opcao) {
                 case 0:// sair do sistema
                     System.out.println("Saindo do sistema...");
-            
+                    salvarDados();
+
                     break;
                 case 1:// cadastrar veiculo
                     String placa, modelo;
-                    double capacidadesKg = 0, consumosKml = 0;
+                    double capacidadeKg = 0, consumosKml = 0;
                     System.out.println("\n##### qual a placa do veiculo #####");
                     System.out.print("coloque no seguinte formato (FFF0F00): ");
                     
@@ -128,50 +128,41 @@ public class SistemaEstoque {
                     System.out.println("\n##### capacidade de carga #####");
                     //limitar a carga para cada tipo de veiculo
                     if(tipo == 1){ 
-                        while (verificador == false) {
+                        do {
                             System.out.println("capacidade permitida e 100 a 1500 kg");
-                            capacidadesKg = lerDecimal(); 
-                            if (capacidadesKg < 100 || capacidadesKg > 1500){
+                            capacidadeKg = lerDecimal(); 
+                            if (capacidadeKg < 100 || capacidadeKg > 1500){
                                 System.out.println("erro de capacidade, coloca a carga permitida");
                             }
-                            else{
-                                verificador = true;
-                            }
-                        }
+                            
+                        }while(capacidadeKg < 100 || capacidadeKg > 1500);
                         
                     }
                     else{  
-                        while (verificador == false) {
+                        do {
                             System.out.println("capacidade permitida e 100 a 6000 kg");
-                            capacidadesKg = lerDecimal();
-                            if (capacidadesKg < 100 || capacidadesKg > 6000){
+                            capacidadeKg = lerDecimal();
+                            if (capacidadeKg < 100 || capacidadeKg > 6000){
                                 System.out.println("erro de capacidade, coloca a carga permitida");
-
                             }
-                            else{
-                                verificador = true;
-                            }
-                        }
+                          
+                        }while(capacidadeKg < 100 || capacidadeKg > 600);
                     }   
 
-                    verificador = false;
 
                     System.out.println("\n##### consumo por km/h #####");
                     System.out.println("tem que ser maior 0 km/h e menor que 31 km/h");
                     do {
                        consumosKml = lerDecimal();
-                       if (consumosKml > 0 && consumosKml <= 30 ) {
-                        // sair do loop
-                        verificador = true;
-                       } 
-                       else{
+                       if (consumosKml < 0 && consumosKml > 30) {
                         // quando coloca o consumo alto ou baixo demais.
                         System.out.println("esse consumo é invalido, tenta outro");
-                       }
-                    } while (verificador == false);
+                       } 
+                       
+                    } while (consumosKml < 0 && consumosKml > 30);
                     
                     //salva o metodo
-                    resultado = cadastrarVeiculo(placa,modelo,tipo,capacidadesKg,consumosKml);
+                    resultado = cadastrarVeiculo(placa,modelo,tipo,capacidadeKg,consumosKml);
 
                     if (resultado.equals("processo concluido")) {
                         //salva e exibe o resultado
@@ -294,24 +285,28 @@ public class SistemaEstoque {
                     System.out.println("\n##### qual e o destino #####");
                     destinoEntrega = lerTexto();
                     System.out.println("\n##### qual e o peso vai levar #####");
-                     while (verificador == false) {
-                            System.out.println("capacidade permitida e 100 a 6000 kg");
-                            pesoEntrega = lerDecimal();
-                            if (pesoEntrega < 100 || pesoEntrega > 6000){
+                    do{
+                        System.out.println("capacidade permitida e 0 kg a 6000 kg");
+                        pesoEntrega = lerDecimal();
+                            if (pesoEntrega > 6000){
                                 System.out.println("erro de capacidade, coloca o peso permitio");
                             }
-                            else{
-                                verificador = true;
-                            }
+                            
+                        }while(pesoEntrega > 6000);
+                    
+                    System.out.println("\n##### qual a distancia da entrega #####");
+                    do {
+                        distanciaEntrega = lerDecimal();
+                        if(distanciaEntrega <= 0 || distanciaEntrega > 500){
+                            System.out.println("Distancia invalida, coloca outra distancia");
                         }
-                    System.out.println("\n##### qual a distancia #####");
-                    distanciaEntrega = lerDecimal();
+                    } while (distanciaEntrega <= 0 || distanciaEntrega > 500);
                     
                     resultado = cadastrarEntrega(destinoEntrega, pesoEntrega, distanciaEntrega);
 
                     if (resultado.equals("processo concluido")) {
                         //salva e exibe o resultado
-                        System.out.println(salvarMotoristas());
+                        System.out.println(salvarEntregas());
 
                     } else {
                         System.out.println(resultado);
@@ -342,17 +337,25 @@ public class SistemaEstoque {
                     listarVeiculos();
                     System.out.print("coloca a placa do veiculo voce usar: ");
                    
-                    do{
-                        placa = lerTexto();
-                    
-                        if(buscarIndiceVeiculo(placa) == -1){
-                            System.out.print("colocar uma placa que existe: ");
-                            
+                    int b = -1;
+                    boolean veiculoValido = false;
+
+                    do {
+                        placa = lerTexto().toUpperCase();
+                        b = buscarIndiceVeiculo(placa);
+
+                        if (buscarIndiceVeiculo(placa) == -1) {
+                            System.out.print("Placa não encontrada. Coloque uma placa que existe: ");
+                        } else if (situacoesVeiculo[b] != 1) { // RN08: 1 = Disponível
+                            System.out.print("Veículo indisponível (em rota ou manutenção). Escolha outro: ");
+                        } else if (capacidadesKg[b] < pesosKg[escolhaEstoque]) { // RN10
+                            System.out.print("Peso excessivo para o veículo (" + capacidadesKg[b] + " kg). Escolha outro: ");
+                        } else {
+                            veiculoValido = true;
                         }
-                        else {  
-                            
-                        }
-                    }while (buscarIndiceVeiculo(placa) == -1);
+                    } while (!veiculoValido);
+
+                    escolhaVeiculo = b;
                     
                     escolhaVeiculo = buscarIndiceVeiculo(placa);
                     
@@ -373,18 +376,65 @@ public class SistemaEstoque {
                         
                     }while (buscarIndiceMotorista(codigo) == -1);
 
-                    escolhaMotorista = buscarIndiceEntrega(codigo);
-    
+                    escolhaMotorista = buscarIndiceMotorista(codigo);
+                    do {
+                        if (escolhaMotorista == -1) {
+                            System.out.println(escolhaErrada());
+                        } else if(situacoesMotoristas[escolhaMotorista] != 1) {
+                            System.out.println("So pode escolher motorista disponive(1)");
+                        }else if(!podeConduzir(escolhaMotorista, escolhaVeiculo)) {
+                            System.out.println(escolhaErrada());
+                        }
+                    } while (veiculoValido);
                     System.out.println("\n##### qual dia #####");
                     int dia = 0;
-                    dia = lerInteiro();
+                    do{
+                        dia = lerInteiro();
+                        if (dia > 6) {
+                            System.out.println("coloca um dia de 1 a 6");
+                        } else {
+                            
+                        }
+
+                    }while(dia > 6);
+                    resultado = despacharEntrega(escolhaEstoque, escolhaVeiculo, escolhaMotorista, dia);
+
+                    if (resultado.equals("processo concluido")) {
+                        //salva e exibe o resultado
+                        System.out.println(salvarEntregas());
+                        System.out.println(salvarVeiculos());
+                        System.out.println(salvarMotoristas());
+
+                    } else {
+                        System.out.println(resultado);
+                    }
+                    
                     break;
                 case 8:// concluir entrega
+                    //mostra todas as entregas
+                    listarEntregas();
+                    
+                    System.out.print("coloca o codigo da entrega para concluir: ");
+                    do{
+                        codigo = lerInteiro();
+                    
+                        if(buscarIndiceEntrega(codigo) == -1){
+                            System.out.print("colocar um codigo que existe: ");
+                            
+                        }
+                        else if(situacoesEntrega[buscarIndiceEntrega(codigo)] !=2){ 
+                            // caso coloque um veiculo não usado ou estando em manutencao  
+                            System.out.println("So pode alterar entrega em andamento (2)");
+                        }
+                    }while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] !=2);
+                    
+                    salvarDados();
+
                     break;
                 case 9:// cancelar entrega
                     break;
                 case 10:// lista de entregas
-                    System.out.println("\n##### Lista de Entregas #####");
+                    System.out.println("\n##### Lista de Entregas #####\n");
                          
                     listarEntregas();
                     
@@ -410,7 +460,7 @@ public class SistemaEstoque {
            
             while ((linha = br.readLine()) != null) {
                 String[] bloco = linha.split(";",-1);
-                if (bloco.length < 6) { // ajuste conforme o arquivo (6, 4 ou 8)
+                if (bloco.length != 6) {
                 System.out.println("Linha invalida ignorada em veiculos.txt: " + linha);
                 continue;
     }
@@ -427,7 +477,7 @@ public class SistemaEstoque {
 
                 qtdVeiculos++;
             }
-        } catch (IOException e) {
+        } catch (IOException | NumberFormatException e) {
             System.out.println("erro de leitura do arquivo: veiculos.txt");
 
         }
@@ -438,7 +488,7 @@ public class SistemaEstoque {
 
             while ((linha = br.readLine()) != null) {
                 String[] bloco = linha.split(";", -1);
-                if (bloco.length < 4) {
+                if (bloco.length != 4) {
                     System.out.println("Linha invalida ignorada em motoristas.txt: " + linha);
                     continue;
                 }
@@ -461,7 +511,7 @@ public class SistemaEstoque {
 
             while ((linha = br.readLine()) != null){
                 String[] bloco = linha.split(";", -1);
-                if (bloco.length < 8) {
+                if (bloco.length != 8) {
                 System.out.println("Linha invalida ignorada em entregas.txt: " + linha);
                 continue;
                 }
@@ -645,8 +695,8 @@ public class SistemaEstoque {
         destinos[qtdEntregas] = destino;
         pesosKg[qtdEntregas] = peso;
         distanciasKm[qtdEntregas] = distancia;
-        entVeiculo[qtdEntregas] = 0;
-        entMotorista[qtdEntregas] = 0;
+        entVeiculo[qtdEntregas] = -1;
+        entMotorista[qtdEntregas] = -1;
         entDia[qtdEntregas] = 0;
         situacoesEntrega[qtdEntregas] = 1; // 1 = pendente
 
@@ -701,27 +751,50 @@ public class SistemaEstoque {
                 
                 //repetindo, guarda todo o arrey
                 for(int a = 0; a < qtdMotoristas; a ++) {
-                bw.write(codigosMotorista[a] +";"+ nomesMotoristas[a] +";"+ categoriasCnh[a] +";"+ situacoesMotoristas[a]);
-                //pular linha
-                bw.newLine();
+                    bw.write(codigosMotorista[a] +";"+ nomesMotoristas[a] +";"+ categoriasCnh[a] +";"+ situacoesMotoristas[a]);
+                 //pular linha
+                    bw.newLine();
  
                 }    
-            } 
-            catch (IOException | NumberFormatException e) {
+            } catch (IOException | NumberFormatException e) {
                 return "erro de escrita do arquivo: motoristas.txt";
             }            
             return "salvo com exito";
     }
+    public static String salvarEntregas(){
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("entregas.txt"))){
+            bw.write(informacoesEntregas);
+            bw.newLine();
+
+            for(int a = 0; a < qtdEntregas; a++){
+                bw.write(codigosEntregas[a] +";"+ destinos[a] +";"+ pesosKg[a] +";"+ distanciasKm[a] +";"+ placas[a] +";"+ codigosMotorista[a] +";"+ entDia[a] +";"+ situacoesEntrega[a]);
+                bw.newLine();
+            }
+        } catch (IOException | NumberFormatException e) {
+                return "erro de escrita do arquivo: entregas.txt";
+            }
+        return "salvo com exito";
+    
+    }
     public static String despacharEntrega(int escolhaEstoque, int escolhaVeiculo, int escolhaMotorista, int dia){
         // fiz isso para não ter salvar no lugar errado;
-        int i = escolhaEstoque - 1;
+        int i = escolhaEstoque;
 
         entVeiculo[i] = escolhaVeiculo;
         entMotorista[i] = escolhaMotorista;
         entDia[i] = dia;
+        
+        situacoesVeiculo[escolhaVeiculo] = 2;
+        situacoesMotoristas[escolhaMotorista] = 2;
         situacoesEntrega[i] = 2;
-
+        
         return "processo concluido";
+    }
+    public static void salvarDados(){
+        // um metodo só pra salvar tudo
+        salvarEntregas();
+        salvarMotoristas();
+        salvarVeiculos();
     }
     public static int buscarIndiceVeiculo(String placa) {
         
@@ -749,4 +822,16 @@ public class SistemaEstoque {
     }
     return -1;
     }
+    public static boolean podeConduzir(int motorista, int veiculo){
+
+    int cnhMinima;
+
+    if(tiposVeiculo[veiculo] == 1){
+        cnhMinima = 1;
+    }else{
+        cnhMinima = 2;
+    }
+
+    return categoriasCnh[motorista] >= cnhMinima;
+}
 }
