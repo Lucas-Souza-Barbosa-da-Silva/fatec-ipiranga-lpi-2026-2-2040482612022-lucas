@@ -162,7 +162,7 @@ public class SistemaEstoque {
                             System.out.println("esse consumo é invalido, tenta outro");
                         }
 
-                    } while (consumosKml < 0 && consumosKml > 30);
+                    } while (consumosKml <= 0 || consumosKml > 30);
 
                     // salva o metodo
                     resultado = cadastrarVeiculo(placa, modelo, tipo, capacidadeKg, consumosKml);
@@ -344,21 +344,33 @@ public class SistemaEstoque {
                     System.out.print("coloca a placa do veiculo voce usar: ");
 
                     int b = -1;
+                    boolean veiculoValido = false;
 
                     do {
+
                         placa = lerTexto().toUpperCase();
+
                         b = buscarIndiceVeiculo(placa);
 
-                        if (buscarIndiceVeiculo(placa) == -1) {
-                            System.out.print("Placa não encontrada. Coloque uma placa que existe: ");
-                        } else if (situacoesVeiculo[b] != 1) { // RN08: 1 = Disponível
-                            System.out.print("Veículo indisponível (em rota ou manutenção). Escolha outro: ");
-                        } else if (capacidadesKg[b] < pesosKg[escolhaEstoque]) { // RN10
-                            System.out.print(
-                                    "Peso excessivo para o veículo (" + capacidadesKg[b] + " kg). Escolha outro: ");
-                        } else {
+                        if(b == -1){
+
+                            System.out.println("Veiculo nao encontrado.");
+
+                        }else if(situacoesVeiculo[b] != 1){
+
+                            System.out.println("Veiculo indisponivel.");
+
+                        }else if(capacidadesKg[b] < pesosKg[escolhaEstoque]){
+
+                            System.out.println("Capacidade insuficiente.");
+
+                        }else{
+
+                            veiculoValido = true;
+
                         }
-                    } while (b == 1 || situacoesVeiculo[b] != 1 || capacidadesKg[b] < pesosKg[escolhaEstoque]);
+
+                    }while(!veiculoValido);
 
                     escolhaVeiculo = b;
 
@@ -432,11 +444,11 @@ public class SistemaEstoque {
                         if (buscarIndiceEntrega(codigo) == -1) {
                             System.out.print("colocar um codigo que existe: ");
 
-                        } else if (situacoesEntrega[buscarIndiceEntrega(codigo)] != 2) {
+                        } else if (situacoesEntrega[buscarIndiceEntrega(codigo)] != 1) {
                             // caso coloque um veiculo não usado ou estando em manutencao
                             System.out.println("So pode alterar entrega em andamento (2)");
                         }
-                    } while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] != 2);
+                    } while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] != 1);
 
                     int indice = buscarIndiceEntrega(codigo);
 
@@ -478,7 +490,7 @@ public class SistemaEstoque {
                             // caso coloque um veiculo não usado ou estando em manutencao
                             System.out.println("So pode remover entrega em andamento");
                         }
-                    } while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] != 2);
+                    } while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] != 1);
 
                     int indiceCanc = buscarIndiceEntrega(codigo);
                     System.out.print("digite (1) para SIM ou (2) para NAO: ");
@@ -507,12 +519,13 @@ public class SistemaEstoque {
                     relatorioVeiculoDia();
                     break;
                 case 12:// relatorio de combustivel
+                    relatorioCombustivel();
                     break;
-                case 13:
-                    // relatorioMotoristas();
+                case 13:// desempenho motorista
+                    relatorioMotoristas();
                     break;
 
-                case 14:
+                case 14:// 
                     // exportarSemanal();
                     break;
                 default:// colocou outra coisa, do que as opcoes
@@ -854,13 +867,27 @@ public class SistemaEstoque {
     }
 
     public static String salvarEntregas() {
+        
+        
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("entregas.txt"))) {
             bw.write(informacoesEntregas);
             bw.newLine();
 
             for (int a = 0; a < qtdEntregas; a++) {
+                
+                String placaArquivo = "-";
+                String motoristaArquivo = "0";
+
+                if(entVeiculo[a] != -1){
+                    placaArquivo = placas[entVeiculo[a]];
+                }
+
+                if(entMotorista[a] != -1){
+                    motoristaArquivo = "" + codigosMotorista[entMotorista[a]];
+                }
+                
                 bw.write(codigosEntregas[a] + ";" + destinos[a] + ";" + pesosKg[a] + ";" + distanciasKm[a] + ";"
-                        + placas[a] + ";" + codigosMotorista[a] + ";" + entDia[a] + ";" + situacoesEntrega[a]);
+                        + placaArquivo + ";" + motoristaArquivo + ";" + entDia[a] + ";" + situacoesEntrega[a]);
                 bw.newLine();
             }
         } catch (IOException | NumberFormatException e) {
@@ -888,17 +915,18 @@ public class SistemaEstoque {
     // um metodo só pra salvar todos os aquivos
     public static String salvarDados() {
 
-        salvarEntregas();
-        salvarMotoristas();
-        salvarVeiculos();
+    String r1 = salvarEntregas();
+    String r2 = salvarMotoristas();
+    String r3 = salvarVeiculos();
 
-        String textoConfirmacao = "foi salvo com sucesso";
-        if (salvarEntregas() != textoConfirmacao || salvarMotoristas() != textoConfirmacao
-                || salvarVeiculos() != textoConfirmacao) {
-            return "houve um erro no salvamento do arquivos";
-        } else {
-            return "os salvamentos dos arquivos foram feito com exito";
-        }
+    if(!r1.equals("foi salvo com sucesso") || !r2.equals("foi salvo com sucesso") || !r3.equals("foi salvo com sucesso")){
+
+        return "os salvamentos dos arquivos foram feito com exito";
+
+    }
+
+    return "Dados salvos com sucesso";
+
     }
 
     public static int buscarIndiceVeiculo(String placa) {
@@ -916,6 +944,7 @@ public class SistemaEstoque {
         for (int i = 0; i < qtdMotoristas; i++) {
             if (codigosMotorista[i] == codigo) {
                 return i;
+
             }
         }
         return -1;
@@ -946,12 +975,11 @@ public class SistemaEstoque {
     public static void relatorioVeiculoDia() {
         for (int v = 0; v < qtdVeiculos; v++) {
             double totalKm = 0;
-            for (int d = 0; d < qtdVeiculos; d++) {
+            for (int d = 0; d < 6; d++) {
                 totalKm += kmVeiculoDia[v][d];
 
             }
-            System.out.println(
-                    placas[v] + " percorreu " + totalKm + " km");
+            System.out.println(placas[v] + " percorreu " + totalKm + " km");
         }
         for (int v = 0; v < qtdVeiculos; v++) {
             int totalEntregas = 0;
@@ -964,11 +992,9 @@ public class SistemaEstoque {
 
         }
         for (int d = 0; d < 6; d++) {
-
             int totalDia = 0;
 
             for (int v = 0; v < qtdVeiculos; v++) {
-
                 totalDia += entregasVeiculoDia[v][d];
 
             }
@@ -977,11 +1003,9 @@ public class SistemaEstoque {
 
         }
         for (int d = 0; d < 6; d++) {
-
             int totalDia = 0;
 
             for (int v = 0; v < qtdVeiculos; v++) {
-
                 totalDia += entregasVeiculoDia[v][d];
 
             }
@@ -995,12 +1019,17 @@ public class SistemaEstoque {
         double kmTotal = 0, custo = 0, litros = 0;
         // esse dois for e para a matriz
         for (int v = 0; v < qtdVeiculos; v++) {
-            for (int d = 0; d < qtdVeiculos; d++) {
+            for (int d = 0; d < 6; d++) {// 6, porque representa os seis dias da matriz
                 kmTotal += kmVeiculoDia[v][d];
                 litros = kmTotal / consumosKmL[v];
                 custo = litros * PRECO_LITRO;
 
             }
+            System.out.println("\nVeiculo: " + placas[v]);
+            System.out.println("KM rodados: " + kmTotal);
+            System.out.println("Litros consumidos: " + litros);
+            System.out.println("Custo: R$ " + custo);
+            
             int totalEntregas = 0;
             for (int d = 0; d < 6; d++) {
                 totalEntregas += entregasVeiculoDia[v][d];
@@ -1013,4 +1042,37 @@ public class SistemaEstoque {
         }
 
     }
+    public static void relatorioMotoristas(){
+        for(int m = 0; m < qtdMotoristas; m++){
+            int quantidade = 0;
+            double kmTotal = 0;
+            double pesoTotal = 0;
+
+            for(int e = 0; e < qtdEntregas; e++){
+                if(situacoesEntrega[e] == 3 &&
+                    entMotorista[e] == m){
+
+                    quantidade++;
+
+                    kmTotal += distanciasKm[e];
+
+                    pesoTotal += pesosKg[e];
+
+                }
+
+            }
+
+        }
+    }
+    public static void exportarSemanal(){
+    try(BufferedWriter bw = new BufferedWriter(new FileWriter("resumo_semanal.txt"))) {
+        bw.write("Rapido Leste Entregas: Relatorio Semanal");
+        bw.newLine();
+        
+        
+    } catch (IOException e) {
+        System.out.println("erro em exportar arquivo resumo_semanal.txt");
+    }
+}
+
 }
