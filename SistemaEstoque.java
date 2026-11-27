@@ -61,6 +61,7 @@ public class SistemaEstoque {
         static int qtdEntregas = 0; //qtd = Quantidade 
         static Scanner sc = new Scanner(System.in);
 
+        static final double PRECO_LITRO = 6.29;
     public static void main(String[] args) {
         //
         carregarDados();
@@ -81,6 +82,8 @@ public class SistemaEstoque {
             System.out.println("( 10 ) Listar entrega");
             System.out.println("( 11 ) Relatório de veiculo e dia");
             System.out.println("( 12 ) Relatório de combustível");
+            System.out.println("( 13 ) Desempenho dos motoristas");
+            System.out.println("( 14 ) Exportar relatório semanal");
             System.out.println("( 0 ) Sair");
             System.out.println("\n###############################");
 
@@ -146,7 +149,7 @@ public class SistemaEstoque {
                                 System.out.println("erro de capacidade, coloca a carga permitida");
                             }
                           
-                        }while(capacidadeKg < 100 || capacidadeKg > 600);
+                        }while(capacidadeKg < 100 || capacidadeKg > 6000);
                     }   
 
 
@@ -154,7 +157,7 @@ public class SistemaEstoque {
                     System.out.println("tem que ser maior 0 km/h e menor que 31 km/h");
                     do {
                        consumosKml = lerDecimal();
-                       if (consumosKml < 0 && consumosKml > 30) {
+                       if (consumosKml <= 0 || consumosKml > 30) {
                         // quando coloca o consumo alto ou baixo demais.
                         System.out.println("esse consumo é invalido, tenta outro");
                        } 
@@ -288,11 +291,11 @@ public class SistemaEstoque {
                     do{
                         System.out.println("capacidade permitida e 0 kg a 6000 kg");
                         pesoEntrega = lerDecimal();
-                            if (pesoEntrega > 6000){
+                            if (pesoEntrega <= 0 || pesoEntrega > 6000){
                                 System.out.println("erro de capacidade, coloca o peso permitio");
                             }
                             
-                        }while(pesoEntrega > 6000);
+                        }while(pesoEntrega <= 0 || pesoEntrega > 6000);
                     
                     System.out.println("\n##### qual a distancia da entrega #####");
                     do {
@@ -390,7 +393,7 @@ public class SistemaEstoque {
                     int dia = 0;
                     do{
                         dia = lerInteiro();
-                        if (dia > 6) {
+                        if (dia < 1||dia > 6) {
                             System.out.println("coloca um dia de 1 a 6");
                         } else {
                             
@@ -428,20 +431,62 @@ public class SistemaEstoque {
                         }
                     }while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] !=2);
                     
+                    int indice = buscarIndiceEntrega(codigo);
+
+                    situacoesEntrega[indice] = 3;
+
+                    situacoesVeiculo[entVeiculo[indice]] = 1;
+
+                    situacoesMotoristas[entMotorista[indice]] = 1;
+
+                    kmVeiculoDia[entVeiculo[indice]][entDia[indice] - 1] += distanciasKm[indice];
+
+                    entregasVeiculoDia[entVeiculo[indice]][entDia[indice] - 1]++;                    
+                    
                     salvarDados();
 
                     break;
                 case 9:// cancelar entrega
+                    //mostra todas as entregas
+                    listarEntregas();
+                    
+                    System.out.print("coloca o codigo da entrega para cancelar envio: ");
+                    do{
+                        codigo = lerInteiro();
+                    
+                        if(buscarIndiceEntrega(codigo) == -1){
+                            System.out.print("colocar um codigo que existe: ");
+                            
+                        }
+                        else if(situacoesEntrega[buscarIndiceEntrega(codigo)] !=2){ 
+                            // caso coloque um veiculo não usado ou estando em manutencao  
+                            System.out.println("So pode remover entrega em andamento se for (2)");
+                        }
+                    }while (buscarIndiceEntrega(codigo) == -1 || situacoesEntrega[buscarIndiceEntrega(codigo)] !=2);
+                    
+                    situacoesEntrega[buscarIndiceEntrega(codigo)] = 4;
+                    
+                    salvarDados();
+
                     break;
                 case 10:// lista de entregas
                     System.out.println("\n##### Lista de Entregas #####\n");
                          
                     listarEntregas();
                     
+                    System.out.println("\n##### Legenda situacão de entrega#####");
+                    System.out.println("|(0) Todas |(1) Pendentes |(2) Em rota |(3) Concluidas |(4) Canceladas|");
                     break;
                 case 11:// relatorio de veiculo e dia
                     break;
                 case 12:// relatorio de combustivel
+                    break;
+                case 13:
+                    //relatorioMotoristas();
+                    break;
+
+                case 14:
+                    //exportarSemanal();
                     break;
                 default:// colocou outra coisa, do que as opcoes
                     System.out.println(escolhaErrada());
@@ -720,7 +765,7 @@ public class SistemaEstoque {
         }
 
     }
-    // salva de maneira permanente
+    // salva de maneira permanente, as informacoes do array
     public static String salvarVeiculos(){
         // o try catch é caso não consiga gravar o arquivo
             try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
@@ -759,7 +804,7 @@ public class SistemaEstoque {
             } catch (IOException | NumberFormatException e) {
                 return "erro de escrita do arquivo: motoristas.txt";
             }            
-            return "salvo com exito";
+            return "foi salvo com sucesso";
     }
     public static String salvarEntregas(){
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("entregas.txt"))){
@@ -767,13 +812,13 @@ public class SistemaEstoque {
             bw.newLine();
 
             for(int a = 0; a < qtdEntregas; a++){
-                bw.write(codigosEntregas[a] +";"+ destinos[a] +";"+ pesosKg[a] +";"+ distanciasKm[a] +";"+ placas[a] +";"+ codigosMotorista[a] +";"+ entDia[a] +";"+ situacoesEntrega[a]);
+                bw.write(codigosEntregas[a] +";"+ destinos[a] +";"+ pesosKg[a] +";"+ distanciasKm[a] +";"+ entVeiculo[a] +";"+ entMotorista[a] +";"+ entDia[a] +";"+ situacoesEntrega[a]);
                 bw.newLine();
             }
         } catch (IOException | NumberFormatException e) {
                 return "erro de escrita do arquivo: entregas.txt";
             }
-        return "salvo com exito";
+        return "foi salvo com sucesso";
     
     }
     public static String despacharEntrega(int escolhaEstoque, int escolhaVeiculo, int escolhaMotorista, int dia){
@@ -790,11 +835,19 @@ public class SistemaEstoque {
         
         return "processo concluido";
     }
-    public static void salvarDados(){
-        // um metodo só pra salvar tudo
+    // um metodo só pra salvar todos os aquivos
+    public static String salvarDados(){
+        
         salvarEntregas();
         salvarMotoristas();
         salvarVeiculos();
+        
+        String textoConfirmacao = "foi salvo com sucesso";
+        if (salvarEntregas() != textoConfirmacao || salvarMotoristas() != textoConfirmacao || salvarVeiculos() != textoConfirmacao) {
+            return "houve um erro no salvamento do arquivos";
+        } else {
+            return "os salvamentos dos arquivos foram feito com exito";
+        }
     }
     public static int buscarIndiceVeiculo(String placa) {
         
