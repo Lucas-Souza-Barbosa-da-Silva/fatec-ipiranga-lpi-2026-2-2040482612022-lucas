@@ -59,6 +59,7 @@ public class SistemaEstoque {
         static int[][] entregasVeiculoDia = new int[MAX_VEICULOS][6];
 
         static int qtdEntregas = 0; //qtd = Quantidade 
+        static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
         //
@@ -71,7 +72,7 @@ public class SistemaEstoque {
             System.out.println("\n##### Sistema de Estoque #####");
             System.out.println("( 1 ) Cadastrar Veiculo");
             System.out.println("( 2 ) Listar Veiculos");
-            System.out.println("( 3 ) Alterar Situacao Veiculos" );
+            System.out.println("( 3 ) Alterar Situacao Veiculos");
             System.out.println("( 4 ) Cadastrar motorista");
             System.out.println("( 5 ) Listar Motoristas");
             System.out.println("( 6 ) Cadastrar Entrega");
@@ -82,6 +83,7 @@ public class SistemaEstoque {
             System.out.println("( 11 ) Relatório de veiculo e dia");
             System.out.println("( 12 ) Relatório de combustível");
             System.out.println("( 0 ) Sair");
+            System.out.println("\n###############################");
 
             System.out.print("Escolha uma opção: ");
             
@@ -95,7 +97,7 @@ public class SistemaEstoque {
                 case 1:// cadastrar veiculo
                     String placa, modelo;
                     double capacidadesKg = 0, consumosKml = 0;
-                    System.out.println("##### qual a placa do veiculo ######");
+                    System.out.println("\n##### qual a placa do veiculo #####");
                     System.out.print("coloque no seguinte formato (FFF0F00): ");
                     
                     do{
@@ -123,7 +125,7 @@ public class SistemaEstoque {
                     }
 
                 } while (tipo < 1 || tipo > 2);
-                    System.out.println("##### capacidade de carga ######");
+                    System.out.println("\n##### capacidade de carga #####");
                     //limitar a carga para cada tipo de veiculo
                     if(tipo == 1){ 
                         while (verificador == false) {
@@ -154,10 +156,19 @@ public class SistemaEstoque {
 
                     verificador = false;
 
-                    System.out.println("##### consumo por km/h #####");
-                    System.out.print("coloque no seguinte formato (100): ");
-                    
-                    consumosKml = lerDecimal();
+                    System.out.println("\n##### consumo por km/h #####");
+                    System.out.println("tem que ser maior 0 km/h e menor que 31 km/h");
+                    do {
+                       consumosKml = lerDecimal();
+                       if (consumosKml > 0 && consumosKml <= 30 ) {
+                        // sair do loop
+                        verificador = true;
+                       } 
+                       else{
+                        // quando coloca o consumo alto ou baixo demais.
+                        System.out.println("esse consumo é invalido, tenta outro");
+                       }
+                    } while (verificador == false);
                     
                     //salva o metodo
                     resultado = cadastrarVeiculo(placa,modelo,tipo,capacidadesKg,consumosKml);
@@ -169,7 +180,6 @@ public class SistemaEstoque {
                     } else {
                         System.out.println(resultado);
                     }
-                    System.out.println(salvarVeiculos());
                     break;
 
                 case 2:// listar veiculo
@@ -199,21 +209,29 @@ public class SistemaEstoque {
                     
                     escolhaVeiculo = buscarIndiceVeiculo(placa);
                     
+                    
                     if(situacoesVeiculo[escolhaVeiculo] == 1){
-                        
-                        System.out.println("Tem certeza de mudar: disponivel para manutencao");
-                    }else if(situacoesVeiculo[escolhaVeiculo] == 3){
-                        System.out.println("Tem certeza de mudar: manutencao para disponivel");
+                        System.out.println("\nTem certeza de mudar: disponivel para manutencao");
+                        System.out.println("digite (1) para sim ou (2) para nao");
+
                         opcao = lerInteiro();
 
-                        if(opcao == 1){
-                        situacoesVeiculo[escolhaVeiculo] = 3;
-                        salvarVeiculos();
-                        }else{
-                        situacoesVeiculo[escolhaVeiculo] = 1;
-                        salvarVeiculos();
+                        if (opcao == 1) {
+                            situacoesVeiculo[escolhaVeiculo] = 3;
+                            salvarVeiculos();   
                         }
-                        
+
+                    }else if(situacoesVeiculo[escolhaVeiculo] == 3){
+                        System.out.println("\nTem certeza de mudar: manutencao para disponivel");
+                        System.out.println("digite (1) para sim ou (2) para nao");
+
+                        opcao = lerInteiro();
+
+                        if (opcao == 1) {
+                            situacoesVeiculo[escolhaVeiculo] = 1;
+                            salvarVeiculos();   
+                        }
+
                     }else{
                         System.out.println("Não pode alterar veiculo em rota");
                     }
@@ -224,13 +242,12 @@ public class SistemaEstoque {
                     int codigo = 0, cnh = 0;
 
                     System.out.println("##### Qual e o codigo do motorista ######");
-                    do{
+                    do {
                         codigo = lerInteiro();
-                        if (codigo < 1 || codigo > 999 || buscarIndiceMotorista(codigo) == -1) {
-                          System.out.println("coloca um codigo valido ex:(1) e nao repitido"); 
-
-                        } else {}
-                    }while (codigo < 1 || codigo > 999 || buscarIndiceMotorista(codigo) != -1);
+                        if (codigo < 1 || codigo > 999 || buscarIndiceMotorista(codigo) != -1) {
+                            System.out.println("coloca um codigo valido ex:(1) e nao repitido");
+                            }
+                    } while (codigo < 1 || codigo > 999 || buscarIndiceMotorista(codigo) != -1);
 
 
 
@@ -264,15 +281,103 @@ public class SistemaEstoque {
                     }
                     
                     break;
-                case 5: // lista dos Motoristas
+                case 5:// lista dos Motoristas
                     System.out.println("\n##### Lista dos Motoristas #####");
                          
                     listarMotoristas();
                     
                     break;
                 case 6:// cadastrar entrega
+                    String destinoEntrega;
+                    double pesoEntrega = 0, distanciaEntrega = 0;
+
+                    System.out.println("\n##### qual e o destino #####");
+                    destinoEntrega = lerTexto();
+                    System.out.println("\n##### qual e o peso vai levar #####");
+                     while (verificador == false) {
+                            System.out.println("capacidade permitida e 100 a 6000 kg");
+                            pesoEntrega = lerDecimal();
+                            if (pesoEntrega < 100 || pesoEntrega > 6000){
+                                System.out.println("erro de capacidade, coloca o peso permitio");
+                            }
+                            else{
+                                verificador = true;
+                            }
+                        }
+                    System.out.println("\n##### qual a distancia #####");
+                    distanciaEntrega = lerDecimal();
+                    
+                    resultado = cadastrarEntrega(destinoEntrega, pesoEntrega, distanciaEntrega);
+
+                    if (resultado.equals("processo concluido")) {
+                        //salva e exibe o resultado
+                        System.out.println(salvarMotoristas());
+
+                    } else {
+                        System.out.println(resultado);
+                    }
+                    
                     break;
                 case 7:// desparchar entrega
+                    //mostra todas as entregas
+                    int escolhaEstoque, escolhaMotorista;
+                    listarEntregas();
+                    
+                    System.out.print("coloca o codigo da entrega que quer desparchar: ");
+                    do{
+                        codigo = lerInteiro();
+                    
+                        if(buscarIndiceEntrega(codigo) == -1){
+                            System.out.print("colocar um codigo que existe: ");
+                            
+                        }
+                        else{  
+                            
+                        }
+                    }while (buscarIndiceEntrega(codigo) == -1);
+
+                    escolhaEstoque = buscarIndiceEntrega(codigo);
+
+                    System.out.println("\n##### qual veiculo vai utilizar #####");
+                    listarVeiculos();
+                    System.out.print("coloca a placa do veiculo voce usar: ");
+                   
+                    do{
+                        placa = lerTexto();
+                    
+                        if(buscarIndiceVeiculo(placa) == -1){
+                            System.out.print("colocar uma placa que existe: ");
+                            
+                        }
+                        else {  
+                            
+                        }
+                    }while (buscarIndiceVeiculo(placa) == -1);
+                    
+                    escolhaVeiculo = buscarIndiceVeiculo(placa);
+                    
+                    System.out.println("\n##### qual motorista vai utilizar #####");
+
+                    listarMotoristas();
+
+                    do{
+                        codigo = lerInteiro();
+                    
+                        if(buscarIndiceMotorista(codigo) == -1){
+                            System.out.print("colocar um codigo que existe: ");
+                            
+                        }
+                        else {  
+                            
+                        }
+                        
+                    }while (buscarIndiceMotorista(codigo) == -1);
+
+                    escolhaMotorista = buscarIndiceEntrega(codigo);
+    
+                    System.out.println("\n##### qual dia #####");
+                    int dia = 0;
+                    dia = lerInteiro();
                     break;
                 case 8:// concluir entrega
                     break;
@@ -380,9 +485,9 @@ public class SistemaEstoque {
         }
         
     }
+    // esse metodos de leitura quebra um galho, no codigo
     // ler int do sistema
     public static int lerInteiro(){
-        Scanner sc = new Scanner(System.in);
         
         int valor;
         
@@ -399,12 +504,10 @@ public class SistemaEstoque {
                 System.out.println(escolhaErrada());
 
                 }
-            sc.close();
             }
         }
     // ler double do sistema
     public static double lerDecimal() {
-        Scanner sc = new Scanner(System.in);
 
         double valor;
 
@@ -424,12 +527,10 @@ public class SistemaEstoque {
                 System.out.println(escolhaErrada());
 
             }
-        sc.close();
         }
     }
     // ler String do sistema
     public static String lerTexto(){
-        Scanner sc = new Scanner(System.in);
         
         while (true) {
             
@@ -447,7 +548,6 @@ public class SistemaEstoque {
             } catch (Exception e) {
                 System.out.println(escolhaErrada());
             }
-        sc.close();
         }
     }    
     // Cadastrar veículo (RF1)
@@ -536,15 +636,42 @@ public class SistemaEstoque {
 
     }
     // cadastrar entrega (RF6)
-    static void cadastrarEntrega(){
+    static String cadastrarEntrega(String destino, double peso, double distancia) {
+        if (qtdEntregas >= MAX_ENTREGAS) {
+            return "Não pode fazer mais entregas";
+        }
+
+        codigosEntregas[qtdEntregas] = qtdEntregas + 1;
+        destinos[qtdEntregas] = destino;
+        pesosKg[qtdEntregas] = peso;
+        distanciasKm[qtdEntregas] = distancia;
+        entVeiculo[qtdEntregas] = 0;
+        entMotorista[qtdEntregas] = 0;
+        entDia[qtdEntregas] = 0;
+        situacoesEntrega[qtdEntregas] = 1; // 1 = pendente
+
+        qtdEntregas++;
+        return "processo concluido";
+    }
+    // listar entrega (RF10)
+    public static void listarEntregas(){
+        if (qtdEntregas == 0) {
+            System.out.println("Nenhum motorista cadastrado.");
+            return;
+        }
+
+        System.out.println(informacoesEntregas);
+
+        for (int i = 0; i < qtdEntregas; i++) {
+            System.out.print(codigosEntregas[i] +";"+ destinos[i] +";"+ pesosKg[i] +";"+ distanciasKm[i]);
+            
+            System.out.print(entVeiculo[i] +";"+ entMotorista[i] +";"+ entDia[i] +";"+ situacoesEntrega[i]);
+
+        }
 
     }
-    // listar entrega (RF7)
-    public static void listarEntregas(){
-        
-    }
+    // salva de maneira permanente
     public static String salvarVeiculos(){
-            boolean deuCerto = false;
         // o try catch é caso não consiga gravar o arquivo
             try (BufferedWriter bw = new BufferedWriter(new FileWriter("veiculos.txt"))){
                 // escreve o cabecario do arquivo
@@ -585,6 +712,17 @@ public class SistemaEstoque {
             }            
             return "salvo com exito";
     }
+    public static String despacharEntrega(int escolhaEstoque, int escolhaVeiculo, int escolhaMotorista, int dia){
+        // fiz isso para não ter salvar no lugar errado;
+        int i = escolhaEstoque - 1;
+
+        entVeiculo[i] = escolhaVeiculo;
+        entMotorista[i] = escolhaMotorista;
+        entDia[i] = dia;
+        situacoesEntrega[i] = 2;
+
+        return "processo concluido";
+    }
     public static int buscarIndiceVeiculo(String placa) {
         
         for (int i = 0; i < qtdVeiculos; i++) {
@@ -596,13 +734,19 @@ public class SistemaEstoque {
         return -1;
     }
     public static int buscarIndiceMotorista(int codigo) {
-
-        for (int i = 0; i < qtdMotoristas; i++) {
-
-            if (codigosMotorista[i] == codigo) {
-                return i;
-            }
-        }   
+    for (int i = 0; i < qtdMotoristas; i++) {
+        if (codigosMotorista[i] == codigo) {
+            return i;
+        }
+    }
     return -1;
-}
+    }
+    public static int buscarIndiceEntrega(int codigo) {
+    for (int i = 0; i < qtdEntregas; i++) {
+        if (codigosEntregas[i] == codigo) {
+            return i;
+        }
+    }
+    return -1;
+    }
 }
